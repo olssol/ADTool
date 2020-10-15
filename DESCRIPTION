@@ -21,8 +21,7 @@ Description: Sharp increases in Alzheimer disease (AD) cases, deaths, and
     integrate data from multiple data sources and create their analysis datasets.
 License: GPL (>=3)
 Depends:
-    methods,
-    R (>= 3.5.0),
+    R (>= 3.5.0)
 Imports: 
     parallel (>= 3.2)
 LinkingTo: 

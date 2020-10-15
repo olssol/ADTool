@@ -3,18 +3,16 @@
 #' @docType package
 #' @name    adt_package
 #' @aliases adt
-#' @useDynLib ADTool, .registration = TRUE
 #'
-#' @import methods
-#' @import Rcpp
-#' @import stats
-
 #' @importFrom grDevices colors
 #' @importFrom graphics axis box legend lines par plot points text arrows grid rect
 #' @importFrom parallel detectCores
 #' @importFrom utils as.roman
 #' @importFrom readxl read_xlsx
 #' @importFrom dplyr filter
+#'
+#' @importFrom stats approxfun as.formula binomial cov density ecdf glm
+#'     integrate optim predict quantile sd var
 #'
 #' @description
 #'
