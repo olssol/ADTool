@@ -1,245 +1,155 @@
 #' Get BIOCARD Data
 #'
+#' Load all BIOCARD data from a folder, generate the corresponding analysis
+#' dataset with column names consistent with other data sources
+#' 
+#' 
 #' @param path Location where the biocard data stored
 #' @param pattern Pattern of the data files
 #' @param parameter_file Parameters dictionary (could be modified if needed)
 #' @param variable_file Variables dictionary (could be modified if needed)
 #'
-#' @return a table with merged biocard data
-#' @export
+#' @return A list with the following items
+#' 
+#'
 #' @examples
 #' \dontrun{
-#' path = "/Users/name/Documents/R/adbiomarker/Data/BIOCARD"
 #' dt_biocard <- get_biocard(path)
 #' }
 #'
+#' @export
+#'
+adt_get_biocard <- function(path = ".", pattern = "*.xls",
+                            dict_par = NULL, dict_vars = NULL, window = 730) {
 
-get_biocard <- function(path = "/Users/name/Data/BIOCARD",
-                        pattern = "*.xls",
-                        parameter_file = "par_file.xlsx",
-                        variable_file = "variables.xlsx"
-                        ) {
-    file_names <- list.files(path = path, pattern = pattern)
-    path <- paste(path, "/", sep = "")
-    par_file <- read_xlsx(paste(path, parameter_file, sep = ""))
-    var_file <- read_xlsx(paste(path, variable_file, sep = ""))
-                                        # par_file <- read_xlsx(parameter_file)
-                                        # var_file <- read_xlsx(variable_file)
+    ## --------- functions -------------------------------------
+    ## convert date
+    f_date <- function(code, dta) {
+        mvar <- a_map_var("BIOCARD", code, "date", dict_vars)
+        dfmt <- filter(dict_par,
+                       file_code == code)[["date_format"]]
 
-    dat_cog <- get_table("COG", file_names, par_file, path)
-    dat_dx <- get_table("DIAG", file_names, par_file, path)
-    dat_csf <- get_table("CSF", file_names, par_file, path)
-    dat_demo <- get_table("DEMO", file_names, par_file, path)
-
-    dat_cog["date"] <- as.Date(dat_cog[, map_var("BIOCARD",
-                                                 "COG",
-                                                 "date",
-                                                 var_file)],
-                               filter(par_file,
-                                      file_code == "COG")[["date_format"]])
-    dat_cog <- dat_cog[, -grep(map_var("BIOCARD",
-                                       "COG",
-                                       "date",
-                                       var_file), names(dat_cog))]
-    dat_dx["date"] <- as.Date(dat_dx[, map_var("BIOCARD",
-                                               "DIAG",
-                                               "date",
-                                               var_file)],
-                              filter(par_file,
-                                     file_code == "DIAG")[["date_format"]])
-    dat_dx <- dat_dx[, -grep(map_var("BIOCARD",
-                                     "DIAG",
-                                     "date",
-                                     var_file), names(dat_dx))]
-    dat_csf["date"] <- as.Date(dat_csf[, map_var("BIOCARD",
-                                                 "CSF",
-                                                 "date",
-                                                 var_file)],
-                               filter(par_file,
-                                      file_code == "CSF")[["date_format"]])
-    dat_csf <- dat_csf[, -grep(map_var("BIOCARD", "CSF", "date", var_file),
-                               names(dat_csf))]
-    dat_csf["abeta"] <- dat_csf[, map_var("BIOCARD", "CSF", "abeta", var_file)]
-    dat_csf <- dat_csf[, -grep(map_var("BIOCARD", "CSF", "abeta", var_file),
-                               names(dat_csf))]
-
-                                        # MRI hippocampus
-    hippo_dat <- get_table("HIPPO", file_names, par_file, path)
-    hippo_dat$date <- as.Date(hippo_dat[, map_var("BIOCARD",
-                                                  "HIPPO",
-                                                  "date",
-                                                  var_file)],
-                              filter(par_file,
-                                     file_code == "HIPPO")[["date_format"]])
-    hippo_dat <- hippo_dat[, -grep(map_var("BIOCARD",
-                                           "HIPPO",
-                                           "date",
-                                           var_file),
-                                   names(hippo_dat))]
-    hippo_dat$intracranial_vol <- as.numeric(hippo_dat[, map_var("BIOCARD",
-                                                                 "HIPPO",
-                                                                 "intracranial_vol",
-                                                                 var_file)])
-    hippo_dat <- hippo_dat[, -grep(map_var("BIOCARD",
-                                           "HIPPO",
-                                           "intracranial_vol",
-                                           var_file),
-                                   names(hippo_dat))]
-    hippo_dat$l_hippo <- as.numeric(hippo_dat[, map_var("BIOCARD",
-                                                        "HIPPO",
-                                                        "l_hippo",
-                                                        var_file)])
-    hippo_dat <- hippo_dat[, -grep(map_var("BIOCARD",
-                                           "HIPPO",
-                                           "l_hippo",
-                                           var_file),
-                                   names(hippo_dat))]
-    hippo_dat$r_hippo <- as.numeric(hippo_dat[, map_var("BIOCARD",
-                                                        "HIPPO",
-                                                        "r_hippo",
-                                                        var_file)])
-    hippo_dat <- hippo_dat[, -grep(map_var("BIOCARD",
-                                           "HIPPO",
-                                           "r_hippo",
-                                           var_file),
-                                   names(hippo_dat))]
-    hippo_dat$bi_hippo <- (hippo_dat$l_hippo + hippo_dat$r_hippo) / 2
-
-                                        # MRI amygdala
-    amy_dat <- get_table("AMY", file_names, par_file, path)
-    amy_dat$date <- as.Date(amy_dat[, map_var("BIOCARD",
-                                              "AMY",
-                                              "date",
-                                              var_file)],
-                            filter(par_file, file_code == "AMY")[["date_format"]])
-    amy_dat <- amy_dat[, -grep(map_var("BIOCARD", "AMY", "date", var_file),
-                               names(amy_dat))]
-    amy_dat$intracranial_vol <- as.numeric(amy_dat[, map_var("BIOCARD",
-                                                             "AMY",
-                                                             "intracranial_vol",
-                                                             var_file)])
-    amy_dat <- amy_dat[, -grep(map_var("BIOCARD", "AMY", "intracranial_vol",
-                                       var_file), names(amy_dat))]
-    amy_dat$l_amy <- as.numeric(amy_dat[, map_var("BIOCARD", "AMY", "l_amy",
-                                                  var_file)])
-    amy_dat <- amy_dat[, -grep(map_var("BIOCARD", "AMY", "l_amy", var_file),
-                               names(amy_dat))]
-    amy_dat$r_amy <- as.numeric(amy_dat[, map_var("BIOCARD", "AMY", "r_amy",
-                                                  var_file)])
-    amy_dat <- amy_dat[, -grep(map_var("BIOCARD", "AMY", "r_amy", var_file),
-                               names(amy_dat))]
-    amy_dat$bi_amy <- (amy_dat$l_amy + amy_dat$r_amy) / 2
-
-                                        # MRI EC volume
-    ec_dat <- get_table("EC", file_names, par_file, path)
-    ec_dat$date <- as.Date(ec_dat[, map_var("BIOCARD", "EC", "date", var_file)],
-                           filter(par_file, file_code == "EC")[["date_format"]])
-    ec_dat <- ec_dat[, -grep(map_var("BIOCARD", "EC", "date", var_file),
-                             names(ec_dat))]
-    ec_dat$intracranial_vol <- as.numeric(ec_dat[, map_var("BIOCARD",
-                                                           "EC",
-                                                           "intracranial_vol",
-                                                           var_file)])
-    ec_dat <- ec_dat[, -grep(map_var("BIOCARD",
-                                     "EC",
-                                     "intracranial_vol",
-                                     var_file),
-                             names(ec_dat))]
-    ec_dat$l_ec_vol <- as.numeric(ec_dat[, map_var("BIOCARD",
-                                                   "EC",
-                                                   "l_ec_vol",
-                                                   var_file)])
-    ec_dat <- ec_dat[, -grep(map_var("BIOCARD", "EC", "l_ec_vol", var_file),
-                             names(ec_dat))]
-    ec_dat$r_ec_vol <- as.numeric(ec_dat[, map_var("BIOCARD",
-                                                   "EC",
-                                                   "r_ec_vol",
-                                                   var_file)])
-    ec_dat <- ec_dat[, -grep(map_var("BIOCARD", "EC", "r_ec_vol", var_file),
-                             names(ec_dat))]
-    ec_dat$bi_ec_vol <- (ec_dat$l_ec_vol + ec_dat$r_ec_vol) / 2
-    ec_dat$l_ec_thick <- as.numeric(ec_dat[, map_var("BIOCARD",
-                                                     "EC",
-                                                     "l_ec_thick",
-                                                     var_file)])
-    ec_dat <- ec_dat[, -grep(map_var("BIOCARD", "EC", "l_ec_thick", var_file),
-                             names(ec_dat))]
-    ec_dat$r_ec_thick <- as.numeric(ec_dat[, map_var("BIOCARD",
-                                                     "EC",
-                                                     "r_ec_thick",
-                                                     var_file)])
-    ec_dat <- ec_dat[, -grep(map_var("BIOCARD", "EC", "r_ec_thick", var_file),
-                             names(ec_dat))]
-    ec_dat$bi_ec_thick <- (ec_dat$l_ec_thick + ec_dat$r_ec_thick) / 2
-
-
-    dat <- data.frame()
-    for (i in seq_len(nrow(dat_dx))) {
-        x <- dat_dx[i, ]
-        tcog <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", var_file)],
-                        xdate = x$date,
-                        dat = dat_cog, yidname = COG$id, ydatename = "date")
-        tcsf <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", var_file)],
-                        xdate = x$date,
-                        dat = dat_csf, yidname = CSF$id, ydatename = "date")
-        thippo <- mymatch(xid =
-                              x[map_var("BIOCARD", "DIAG", "subject_id", var_file)],
-                          xdate = x$date,
-                          dat = hippo_dat, yidname = HIPPO$id, ydatename = "date")
-        tamy <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", var_file)],
-                        xdate = x$date,
-                        dat = amy_dat, yidname = AMY$id, ydatename = "date")
-        tec <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", var_file)],
-                       xdate = x$date,
-                       dat = ec_dat, yidname = EC$id, ydatename = "date")
-                                        # merge data for output
-        dup_list <- c("JHUANONID", "LETTERCODE",
-                      "NIHID", "VISITNO", "date",
-                      "Scan", "De.Identified.Subject.ID",
-                      "Subject.NIHID", "Age.at.Scan",
-                      "Diagnosis.at.last.scan", "Consensus.Diagnosis",
-                      "intracranial_vol")
-        x <- x[, -which(names(x) %in% dup_list)]
-        out <- merge(x, tcog,
-                     by = map_var("BIOCARD", "DIAG", "subject_id", var_file))
-        tcsf <- tcsf[, -which(names(tcsf) %in% dup_list)]
-        out <- merge(out, tcsf,
-                     by.x = map_var("BIOCARD", "DIAG", "subject_id", var_file),
-                     by.y = map_var("BIOCARD", "CSF", "subject_id", var_file))
-        thippo <- thippo[, -which(names(thippo) %in% dup_list)]
-        out <- merge(out, thippo,
-                     by.x = map_var("BIOCARD", "DIAG", "subject_id", var_file),
-                     by.y = map_var("BIOCARD", "HIPPO", "subject_id", var_file))
-        tamy <- tamy[, -which(names(tamy) %in% dup_list)]
-        out <- merge(out, tamy,
-                     by.x = map_var("BIOCARD", "DIAG", "subject_id", var_file),
-                     by.y = map_var("BIOCARD", "AMY", "subject_id", var_file))
-        tec <- tec[, -which(names(tec) %in% dup_list)]
-        out <- merge(out, tec,
-                     by.x = map_var("BIOCARD", "DIAG", "subject_id", var_file),
-                     by.y = map_var("BIOCARD", "EC", "subject_id", var_file))
-        dat <- rbind(dat, out)
+        dta["date"] <- as.Date(dta[, mvar], dfmt)
+        dta         <- dta[, -grep(mvar, names(dta))]
+        dta
     }
 
-    dat <- merge(dat, dat_demo[, -which(names(dat_demo) %in% dup_list)],
-                 by = map_var("BIOCARD", "DIAG", "subject_id", var_file))
+    ## map var
+    f_map <- function(code, var, dta, fc = NULL) {
+        mvar     <- a_map_var("BIOCARD", code, var, dict_vars)
+        dta[var] <- dta[mvar]
+        dta      <- dta[, -grep(mvar, names(dta))]
 
-                                        # exclude subjects from list A and list B
-    list_a <- get_table("LIST_A", file_names, par_file, path)
+        if (!is.null(fc))
+            dta[var] <- fc(dta[var])
 
-    list_b <- get_table("LIST_B", file_names, par_file, path)
+        dta
+    }
 
-    exid <- c(list_a[LIST_A$id], list_b[LIST_B$id])
+    ## --------- prepare pars -------------------------------------
+    dup_list <- c("JHUANONID", "LETTERCODE",
+                  "NIHID", "VISITNO", "date",
+                  "Scan", "De.Identified.Subject.ID",
+                  "Subject.NIHID", "Age.at.Scan",
+                  "Diagnosis.at.last.scan", "Consensus.Diagnosis",
+                  "intracranial_vol")
 
-                                        # load ApoE-4
-    dat_race <- get_table("GE", file_names, par_file, path)
-    dat_race <- dat_race[, -which(names(dat_race)
-                                  %in% c("JHUANONID", "LETTERCODE", "NIHID"))]
+    ## list all file names matching the pattern
+    file_names <- list.files(path = path, pattern = pattern, full.names = TRUE)
+
+    if (is.null(dict_par))
+        dict_par <- apt_get_dict("par")
+    else
+        dict_par <- apt_get_dict("par", csv_fname = dict_vars)
+
+    if (is.null(dict_vars))
+        dict_vars <- apt_get_dict("vars")
+    else
+        dict_vars <- apt_get_dict("vars", csv_fname = dict_vars)
+
+    ## --------- read tables -------------------------------------
+    dat_cog   <- a_read_file("COG",    file_names, dict_par)
+    dat_dx    <- a_read_file("DIAG",   file_names, dict_par)
+    dat_csf   <- a_read_file("CSF",    file_names, dict_par)
+    dat_demo  <- a_read_file("DEMO",   file_names, dict_par)
+    dat_hippo <- a_read_file("HIPPO",  file_names, dict_par)
+    dat_amy   <- a_read_file("AMY",    file_names, dict_par)
+    dat_ec    <- a_read_file("EC",     file_names, dict_par)
+    dat_race  <- a_read_file("GE",     file_names, dict_par)
+    dat_lsta  <- a_read_file("LIST_A", file_names, dict_par)
+    dat_lstb  <- a_read_file("LIST_B", file_names, dict_par)
+
+    ## ----------  manipulation ----------------------------------
+    dat_cog   <- f_date("COG",  dat_cog)
+    dat_cog   <- f_map("COG", "subject_id", dat_cog)
+
+    dat_dx    <- f_date("DIAG", dat_dx)
+    dat_dx    <- f_map("DIAG", "subject_id", dat_dx)
+
+    dat_csf   <- f_date("CSF",  dat_csf)
+    dat_csf   <- f_map("CSF",   "abeta", dat_csf)
+    dat_csf   <- f_map("CSF",   "subject_id", dat_csf)
+
+    dat_hippo <- f_date("HIPPO", dat_hippo)
+    dat_hippo <- f_map("HIPPO", "subject_id",       dat_hippo)
+    dat_hippo <- f_map("HIPPO", "intracranial_vol", dat_hippo, as.numeric)
+    dat_hippo <- f_map("HIPPO", "l_hippo",,         dat_hippo, as.numeric)
+    dat_hippo <- f_map("HIPPO", "r_hippo",,         dat_hippo, as.numeric)
+    dat_hippo$bi_hippo <- (dat_hippo$l_hippo + dat_hippo$r_hippo) / 2
+
+    ## MRI amygdala
+    dat_amy <- f_date("AMY", dat_amy)
+    dat_amy <- f_map("AMY", "subject_id",       dat_amy)
+    dat_amy <- f_map("AMY", "intracranial_vol", dat_amy, as.numeric)
+    dat_amy <- f_map("AMY", "l_amy",            dat_amy, as.numeric)
+    dat_amy <- f_map("AMY", "r_amy",            dat_amy, as.numeric)
+    dat_amy$bi_amy <- (dat_amy$l_amy + dat_amy$r_amy) / 2
+
+    ## MRI EC volume
+    dat_ec  <- f_date("EC", dat_ec)
+    dat_ec  <- f_map("EC", "subject_id",       dat_ec)
+    dat_ec  <- f_map("EC", "intracranial_vol", dat_ec, as.numeric)
+    dat_ec  <- f_map("EC", "l_ec_vol",         dat_ec, as.numeric)
+    dat_ec  <- f_map("EC", "r_ec_vol",         dat_ec, as.numeric)
+    dat_ec  <- f_map("EC", "l_ec_thick",       dat_ec, as.numeric)
+    dat_ec  <- f_map("EC", "r_ec_thick",       dat_ec, as.numeric)
+    dat_ec$bi_ec_vol   <- (dat_ec$l_ec_vol   + dat_ec$r_ec_vol)   / 2
+    dat_ec$bi_ec_thick <- (dat_ec$l_ec_thick + dat_ec$r_ec_thick) / 2
+
+    ## race
+    dat_race <- dat_race[, - which(names(dat_race)
+                                   %in% c("JHUANONID",
+                                          "LETTERCODE",
+                                          "NIHID"))]
+
+    ## exclude subjects from list A and list B
+    exid <- c(dta_lsta[LIST_A$id],
+              dta_lstb[LIST_B$id])
+
+    ## ------------- combine data --------------------------------------
+    tcog   <- a_match(dat_diag, dat_cog,   window, dup_list)
+    tcsf   <- a_match(dat_diag, dat_csf,   window, dup_list)
+    thippo <- a_match(dat_diag, dat_hippo, window, dup_list)
+    tamy   <- a_match(dat_diag, dat_amy,   window, dup_list)
+    tec    <- a_match(dat_diag, dat_ec,    window, dup_list)
+
+    out <- merge(dat_diag, tcog,   by = "subject_id")
+    out <- merge(out,      tcsf,   by = "subject_id")
+    out <- merge(out,      thippo, by = "subject_id")
+    out <- merge(out,      tamy,   by = "subject_id")
+    out <- merge(out,      tec,    by = "subject_id")
+    dat <- merge(out,
+                 dat_demo[, -which(names(dat_demo) %in% dup_list)],
+                 by = "subject_id")
+
+
+    ## load ApoE-4
     dat <- merge(dat, dat_race, by = GE$id)
     dat$apoe <- as.numeric(dat[, "APOECODE"] %in% c(3.4, 4.4))
     dat$apoe[dat["APOECODE"] == 2.4] <- NA
 
     ##
-    return(list(dat, exid))
+    return(list(data = dat,
+                exid = exid))
 
 }

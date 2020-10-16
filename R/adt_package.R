@@ -7,7 +7,6 @@
 #' @importFrom grDevices colors
 #' @importFrom graphics axis box legend lines par plot points text arrows grid rect
 #' @importFrom parallel detectCores
-#' @importFrom utils as.roman
 #' @importFrom readxl read_xlsx
 #' @importFrom dplyr filter
 #'
@@ -85,3 +84,43 @@
 #' @references
 #'
 NULL
+
+#' Dictionary of columns 
+#'
+#' @name dict_par
+#'
+#' @docType data
+#'
+#' @usage data(grav)
+#' #'
+#' @format A dataframe with the following variables:
+#' \itemize{
+#'   \item{file_code}{}
+#'   \item{file_name}{}
+#' }
+NULL
+
+#' Dictionary of variables 
+#'
+#' @name dict_vars
+#'
+#' @format A dataframe with the following variables:
+#' \itemize{
+#'   \item{file_code}{}
+#'   \item{file_name}{}
+#' }
+NULL
+
+#' ADNI Dictionary data
+#'
+#' Dictionary for ADNI files 
+#' 
+#' @name dict_adni
+#'
+#' @format A dataframe with the following variables:
+#' \itemize{
+#'   \item{file_label}{}
+#'   \item{file_name}{}
+#' }
+NULL
+
