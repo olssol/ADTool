@@ -93,8 +93,8 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
     dat_hippo <- f_date("HIPPO", dat_hippo)
     dat_hippo <- f_map("HIPPO", "subject_id",       dat_hippo)
     dat_hippo <- f_map("HIPPO", "intracranial_vol", dat_hippo, as.numeric)
-    dat_hippo <- f_map("HIPPO", "l_hippo",,         dat_hippo, as.numeric)
-    dat_hippo <- f_map("HIPPO", "r_hippo",,         dat_hippo, as.numeric)
+    dat_hippo <- f_map("HIPPO", "l_hippo",          dat_hippo, as.numeric)
+    dat_hippo <- f_map("HIPPO", "r_hippo",          dat_hippo, as.numeric)
     dat_hippo$bi_hippo <- (dat_hippo$l_hippo + dat_hippo$r_hippo) / 2
 
     ## MRI amygdala
@@ -117,10 +117,10 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
     dat_ec$bi_ec_thick <- (dat_ec$l_ec_thick + dat_ec$r_ec_thick) / 2
 
     ## race
-    dat_race <- dat_race[, - which(names(dat_race)
-                                   %in% c("JHUANONID",
-                                          "LETTERCODE",
-                                          "NIHID"))]
+    dat_race <- dat_race[, -which(names(dat_race)
+                                  %in% c("JHUANONID",
+                                         "LETTERCODE",
+                                         "NIHID"))]
 
     ## exclude subjects from list A and list B
     exid <- c(dta_lsta[LIST_A$id],
