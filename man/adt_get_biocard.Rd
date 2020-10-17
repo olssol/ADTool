@@ -5,10 +5,11 @@
 \title{Get BIOCARD Data}
 \usage{
 adt_get_biocard(
-  path = "/Users/name/Data/BIOCARD",
+  path = ".",
   pattern = "*.xls",
-  parameter_file = "par_file.xlsx",
-  variable_file = "variables.xlsx"
+  dict_par = NULL,
+  dict_vars = NULL,
+  window = 730
 )
 }
 \arguments{
@@ -21,7 +22,7 @@ adt_get_biocard(
 \item{variable_file}{Variables dictionary (could be modified if needed)}
 }
 \value{
-a table with merged biocard data
+A list with the following items
 }
 \description{
 Load all BIOCARD data from a folder, generate the corresponding analysis
@@ -29,7 +30,6 @@ dataset with column names consistent with other data sources
 }
 \examples{
 \dontrun{
-path = "/Users/name/Documents/R/adbiomarker/Data/BIOCARD"
 dt_biocard <- get_biocard(path)
 }
 
