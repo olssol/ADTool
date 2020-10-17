@@ -4,10 +4,10 @@
 \alias{adt_get_nacc}
 \title{Get NACC Data}
 \usage{
-adt_get_nacc(fname)
+adt_get_nacc(csv_fname)
 }
 \arguments{
-\item{fname}{CSV filename for the NACC data}
+\item{csv_fname}{CSV filename for the NACC data}
 }
 \value{
 A dataframe with NACC data

@@ -8,7 +8,8 @@
 #' @importFrom graphics axis box legend lines par plot points text arrows grid rect
 #' @importFrom parallel detectCores
 #' @importFrom readxl read_xlsx
-#' @importFrom dplyr filter
+#' @importFrom gdata read.xls
+#' @import dplyr 
 #'
 #' @importFrom stats approxfun as.formula binomial cov density ecdf glm
 #'     integrate optim predict quantile sd var

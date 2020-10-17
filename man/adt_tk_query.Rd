@@ -4,14 +4,16 @@
 \alias{adt_tk_query}
 \title{Query data frames}
 \usage{
-adt_tk_query(data, str = NULL, fname = NULL)
+adt_tk_query(data, str = NULL, csv_fname = NULL, ignore.case = TRUE)
 }
 \arguments{
 \item{data}{data sets}
 
 \item{str}{String to search}
 
-\item{fname}{CSV filename to be saved}
+\item{csv_fname}{CSV filename to be saved}
+
+\item{ignore.case}{Ignore case during matching}
 }
 \description{
 Query data frames

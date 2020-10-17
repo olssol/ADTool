@@ -75,15 +75,18 @@ a_map_var <- function(data_name0 = "BIOCARD", table_code0, var_name, var_file) {
 #' }
 #'
 #' 
-a_match <- function(dat_diag, dat_marker, window, duplist) {
-    dat_diag %>%
-        select(subject_id, date) %>%
-        left_join(dat_marker, by = "subject_id", suffix = c("_diag", "")) %>%
-        mutate(datediff = date - date_diag) %>%
-        select(- duplist)
+#a_match <- function(dat_dx, dat_marker, window, duplist) {
+a_match <- function(dat_dx, dat_marker, m_date, window, duplist) {
+    dat_dx %>%
+        select(subject_id, date_dx) %>%
+        left_join(dat_marker, by = "subject_id", suffix = c("_marker", "")) %>%
+        mutate(datediff = date_dx - eval(parse(text = m_date))) %>%
+        select(-names(dat_marker)[which(names(dat_marker) 
+                                        %in% duplist)]) %>%
         group_by(subject_id) %>%
         arrange(datediff) %>%
         filter(row_number() == 1) %>%
         ungroup() %>%
-        filter(datediff < !!window) 
+        filter(datediff < !!window) %>%
+        select(-c("datediff", "date_dx"))
 }
