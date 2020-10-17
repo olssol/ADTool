@@ -1,14 +1,14 @@
 #' Query data frames
 #'
-#' @param data data sets
-#' @param str String to search
-#' @param csv_fname CSV filename to be saved
-#' @param ignore.case Ignore case during matching
+#' @param data        data sets
+#' @param str         String to search
+#' @param csv_fname   CSV filename to be saved
+#' @param ignore_case Ignore case during matching
 #'
 #' @export
 #'
 adt_tk_query <- function(data, str = NULL, csv_fname = NULL,
-                         ignore.case = TRUE) {
+                         ignore_case = TRUE) {
 
     if (is.null(str)) {
         rst <- data
@@ -42,9 +42,9 @@ adt_tk_query <- function(data, str = NULL, csv_fname = NULL,
 
 #' Get dictionary 
 #'
-#'
-#' @param dict Name of the dictionary. The available options are:
-#' @param csv_fname 
+#' @param dict      Name of the dictionary. 
+#'                  The available options are: "par", "vars", "adni"
+#' @param csv_fname External dictionary. If change of default setting needed
 #'
 #' @examples
 #' \dontrun{

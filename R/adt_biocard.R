@@ -3,15 +3,14 @@
 #' Load all BIOCARD data from a folder, generate the corresponding analysis
 #' dataset with column names consistent with other data sources
 #' 
-#' 
 #' @param path Location where the biocard data stored
 #' @param pattern Pattern of the data files
-#' @param parameter_file Parameters dictionary (could be modified if needed)
-#' @param variable_file Variables dictionary (could be modified if needed)
+#' @param dict_par Parameters dictionary (could be modified if needed)
+#' @param dict_vars Variables dictionary (could be modified if needed)
+#' @param window time window for matching biomarkers to diagnosis
 #'
 #' @return A list with the following items
 #' 
-#'
 #' @examples
 #' \dontrun{
 #' dt_biocard <- get_biocard(path)
@@ -41,7 +40,6 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
         dta      <- dta[, -grep(mvar, names(dta))]
 
         if (!is.null(fc))
-            #dta[var] <- fc(dta[var])
             dta[var] <- lapply(dta[var], fc)
 
         dta
@@ -99,7 +97,8 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
 
     dat_hippo <- f_date("HIPPO", "date_hippo",       dat_hippo)
     dat_hippo <- f_map("HIPPO",  "subject_id",       dat_hippo)
-    dat_hippo <- f_map("HIPPO",  "intracranial_vol_hippo", dat_hippo, as.numeric)
+    dat_hippo <- f_map("HIPPO",  "intracranial_vol_hippo", 
+                       dat_hippo, as.numeric)
     dat_hippo <- f_map("HIPPO",  "l_hippo",          dat_hippo, as.numeric)
     dat_hippo <- f_map("HIPPO",  "r_hippo",          dat_hippo, as.numeric)
     dat_hippo$bi_hippo <- (dat_hippo$l_hippo + dat_hippo$r_hippo) / 2
@@ -154,7 +153,7 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
     dat$apoe <- as.numeric(dat[, "APOECODE"] %in% c(3.4, 4.4))
     dat$apoe[dat["APOECODE"] == 2.4] <- NA
 
-    ##
+    ## return
     return(list(data = dat,
                 exid = exid))
 
