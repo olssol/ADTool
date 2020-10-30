@@ -19,7 +19,8 @@
 #' @export
 #'
 adt_get_biocard <- function(path = ".", pattern = "*.xls",
-                            dict_par = NULL, dict_vars = NULL, window = 730) {
+                            dict_par = NULL, dict_vars = NULL, window = 730,
+                            dat_se = dat_dx, date_se = "date_dx") {
 
     ## --------- functions -------------------------------------
     ## convert date
@@ -135,21 +136,41 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
               dat_lstb[[id_name]])
 
     ## ------------- combine data --------------------------------------
-    tcog   <- a_match(dat_dx, dat_cog,   "date_cog",   window, dup_list)
-    tcsf   <- a_match(dat_dx, dat_csf,   "date_csf",   window, dup_list)
-    thippo <- a_match(dat_dx, dat_hippo, "date_hippo", window, dup_list)
-    tamy   <- a_match(dat_dx, dat_amy,   "date_amy",   window, dup_list)
-    tec    <- a_match(dat_dx, dat_ec,    "date_ec",    window, dup_list)
     
-    out <- merge(dat_dx, tcog,     by = "subject_id")
-    out <- merge(out,    tcsf,     by = "subject_id")
-    out <- merge(out,    thippo,   by = "subject_id")
-    out <- merge(out,    tamy,     by = "subject_id")
-    out <- merge(out,    tec,      by = "subject_id")
-    dat <- merge(out,    dat_demo, by = "subject_id")
+    ### change dat_dx (cog, csf) get id and
+    
+    f_combine <- function(dat_se, date_se){
+        
+        if(date_se != "date_dx")    tdx    <- a_match(dat_se, date_se, dat_dx,    "date_dx",    window, dup_list)
+        if(date_se != "date_cog")   tcog   <- a_match(dat_se, date_se, dat_cog,   "date_cog",   window, dup_list)
+        if(date_se != "date_csf")   tcsf   <- a_match(dat_se, date_se, dat_csf,   "date_csf",   window, dup_list)
+        if(date_se != "date_hippo") thippo <- a_match(dat_se, date_se, dat_hippo, "date_hippo", window, dup_list)
+        if(date_se != "date_amy")   tamy   <- a_match(dat_se, date_se, dat_amy,   "date_amy",   window, dup_list)
+        if(date_se != "date_ec")    tec    <- a_match(dat_se, date_se, dat_ec,    "date_ec",    window, dup_list)
+        
+        if(date_se != "date_dx") {
+            out <- merge(dat_se, tdx,      by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_cog") out <- merge(out,    tcog,     by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_csf") out <- merge(out,    tcsf,     by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_hippo") out <- merge(out,    thippo,   by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_amy") out <- merge(out,    tamy,     by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_ec") out <- merge(out,    tec,      by = c("subject_id", date_se), all.x = TRUE)
+        } 
+        else {
+            out <- merge(dat_se, tcog,     by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_csf") out <- merge(out,    tcsf,     by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_hippo") out <- merge(out,    thippo,   by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_amy") out <- merge(out,    tamy,     by = c("subject_id", date_se), all.x = TRUE)
+            if(date_se != "date_ec") out <- merge(out,    tec,      by = c("subject_id", date_se), all.x = TRUE)
+        }
+    }
+    
+    out <- f_combine(dat_se, date_se)
+    
+    dat <- merge(out,    dat_demo, by = c("subject_id"), all.x = TRUE)
 
     ## load ApoE-4
-    dat <- merge(dat, dat_race, by = "subject_id")
+    dat <- merge(dat, dat_race, by = "subject_id", all.x = TRUE)
     dat$apoe <- as.numeric(dat[, "APOECODE"] %in% c(3.4, 4.4))
     dat$apoe[dat["APOECODE"] == 2.4] <- NA
 

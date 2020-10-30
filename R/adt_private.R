@@ -74,16 +74,20 @@ a_map_var <- function(data_name0 = "BIOCARD", table_code0, var_name, var_file) {
 #' dat = dat_cog, yidname = COG$id, ydatename = "date")
 #' }
 #'
-a_match <- function(dat_dx, dat_marker, m_date, window, duplist) {
-    dat_dx %>%
-        select(subject_id, date_dx) %>%
+a_match <- function(dat_se, date_se, dat_marker, m_date, window, duplist) {
+    dat_se %>%
+        select(subject_id, date_se) %>%
+        group_by(subject_id) %>%
+        mutate(date_upr = (eval(parse(text = date_se)) - lag(eval(parse(text = date_se)))) / 2) %>%
+        mutate(date_lwr = (eval(parse(text = date_se)) - lead(eval(parse(text = date_se)))) / 2) %>%
+        mutate(date_upr = replace(date_upr, is.na(date_upr), window)) %>%
+        mutate(date_lwr = replace(date_lwr, is.na(date_lwr), -window)) %>%
+        ungroup() %>%
         left_join(dat_marker, by = "subject_id", suffix = c("_marker", "")) %>%
-        mutate(datediff = date_dx - eval(parse(text = m_date))) %>%
+        mutate(date_diff = eval(parse(text = date_se)) - eval(parse(text = m_date))) %>%
         select(-names(dat_marker)[which(names(dat_marker) %in% duplist)]) %>%
         group_by(subject_id) %>%
-        arrange(datediff) %>%
-        filter(row_number() == 1) %>%
+        filter(date_diff < date_upr & date_diff > date_lwr) %>%
         ungroup() %>%
-        filter(datediff < !!window) %>%
-        select(-c("datediff", "date_dx"))
+        select(-c("date_diff", "date_upr", "date_lwr"))
 }
