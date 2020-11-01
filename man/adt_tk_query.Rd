@@ -4,7 +4,7 @@
 \alias{adt_tk_query}
 \title{Query data frames}
 \usage{
-adt_tk_query(data, str = NULL, csv_fname = NULL, ignore.case = TRUE)
+adt_tk_query(data, str = NULL, csv_fname = NULL, ignore_case = TRUE)
 }
 \arguments{
 \item{data}{data sets}
@@ -13,7 +13,7 @@ adt_tk_query(data, str = NULL, csv_fname = NULL, ignore.case = TRUE)
 
 \item{csv_fname}{CSV filename to be saved}
 
-\item{ignore.case}{Ignore case during matching}
+\item{ignore_case}{Ignore case during matching}
 }
 \description{
 Query data frames

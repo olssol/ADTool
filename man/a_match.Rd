@@ -33,5 +33,4 @@ xdate = x$date,
 dat = dat_cog, yidname = COG$id, ydatename = "date")
 }
 
-
 }

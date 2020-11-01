@@ -7,9 +7,10 @@
 adt_get_dict(dict = c("par", "vars", "adni"), csv_fname = NULL)
 }
 \arguments{
-\item{dict}{Name of the dictionary. The available options are:}
+\item{dict}{Name of the dictionary. 
+The available options are: "par", "vars", "adni"}
 
-\item{csv_fname}{}
+\item{csv_fname}{External dictionary. If change of default setting needed}
 }
 \description{
 Get dictionary
