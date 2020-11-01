@@ -50,6 +50,36 @@ a_map_var <- function(data_name0 = "BIOCARD", table_code0, var_name, var_file) {
     return(res)
 }
 
+#' Define time window
+#'
+#'
+#'
+#' @export
+#'
+a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
+    g_win <- function(d1, d2, left) {
+        if (window_overlap) {
+            d <- window / 2
+        } else {
+            d <- min(d2, window / 2, na.rm = T)
+        }
+
+        d1 + left * d
+    }
+
+    dat %>%
+        mutate(subject_id = !!as.name(v_id),
+               date       = !!as.name(v_date)) %>%
+        select(subject_id, date) %>%
+        group_by(subject_id) %>%
+        arrange(date, .by_group = T) %>%
+        mutate(date_left  = (date - lag(date, order_by = subject_id)) / 2,
+               date_right = lead(date_left, order_by = subject_id)) %>%
+        rowwise() %>%
+        mutate(date_left  = g_win(date, date_left,  -1),
+               date_right = g_win(date, date_right, 1))
+
+}
 
 #' Map Biomarkers Data to Diagnosis Visits
 #'
@@ -57,7 +87,7 @@ a_map_var <- function(data_name0 = "BIOCARD", table_code0, var_name, var_file) {
 #' closest markers within a 730-day-each-side two-sided window if no marker
 #' satisfies assignment criteria, mark as missing if two marker satisfy
 #' assignment criteria, take first
-#' 
+#'
 #' @param xid       Id in diagnosis visit table
 #' @param xdate     Date of visit
 #' @param dat       Table includes biomarkers
@@ -74,20 +104,26 @@ a_map_var <- function(data_name0 = "BIOCARD", table_code0, var_name, var_file) {
 #' dat = dat_cog, yidname = COG$id, ydatename = "date")
 #' }
 #'
-a_match <- function(dat_se, date_se, dat_marker, m_date, window, duplist) {
+a_match <- function(dat_se, dat_marker, m_date, duplist) {
+
+    exc_cols   <- names(dat_marker)[which(names(dat_marker) %in% duplist)]
+    dat_marker <- dat_marker %>%
+        mutate(m_date = = !!as.name(m_date))
+
+    dat_match <- dat_se %>%
+        select(subject_id, date, date_left, date_right) %>%
+        left_join(dat_marker %>%
+                  select(subject_id, m_date),
+                  by = "subject_id") %>%
+        filter(m_date >= date_left & m_date > date_right) %>%
+        mutate(diff = abs(date - m_date)) %>%
+        group_by(subject_id) %>%
+        arrage(diff, .by_group = T) %>%
+        filter(row_number() == 1) %>%
+        select(subject_id, date, m_date)
+
     dat_se %>%
-        select(subject_id, date_se) %>%
-        group_by(subject_id) %>%
-        mutate(date_upr = (eval(parse(text = date_se)) - lag(eval(parse(text = date_se)))) / 2) %>%
-        mutate(date_lwr = (eval(parse(text = date_se)) - lead(eval(parse(text = date_se)))) / 2) %>%
-        mutate(date_upr = replace(date_upr, is.na(date_upr), window)) %>%
-        mutate(date_lwr = replace(date_lwr, is.na(date_lwr), -window)) %>%
-        ungroup() %>%
-        left_join(dat_marker, by = "subject_id", suffix = c("_marker", "")) %>%
-        mutate(date_diff = eval(parse(text = date_se)) - eval(parse(text = m_date))) %>%
-        select(-names(dat_marker)[which(names(dat_marker) %in% duplist)]) %>%
-        group_by(subject_id) %>%
-        filter(date_diff < date_upr & date_diff > date_lwr) %>%
-        ungroup() %>%
-        select(-c("date_diff", "date_upr", "date_lwr"))
+        left_join(dat_match, by = c("subject_id", "date")) %>%
+        left_join(dat_marker, by = c("subject_id", "m_date")) %>%
+    select(- exc_cols)
 }
