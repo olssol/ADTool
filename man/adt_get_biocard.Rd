@@ -17,9 +17,11 @@ adt_get_biocard(
 
 \item{pattern}{Pattern of the data files}
 
-\item{parameter_file}{Parameters dictionary (could be modified if needed)}
+\item{dict_par}{Parameters dictionary (could be modified if needed)}
 
-\item{variable_file}{Variables dictionary (could be modified if needed)}
+\item{dict_vars}{Variables dictionary (could be modified if needed)}
+
+\item{window}{time window for matching biomarkers to diagnosis}
 }
 \value{
 A list with the following items

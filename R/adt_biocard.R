@@ -2,7 +2,7 @@
 #'
 #' Load all BIOCARD data from a folder, generate the corresponding analysis
 #' dataset with column names consistent with other data sources
-#' 
+#'
 #' @param path Location where the biocard data stored
 #' @param pattern Pattern of the data files
 #' @param dict_par Parameters dictionary (could be modified if needed)
@@ -10,7 +10,7 @@
 #' @param window time window for matching biomarkers to diagnosis
 #'
 #' @return A list with the following items
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' dt_biocard <- get_biocard(path)
@@ -18,9 +18,12 @@
 #'
 #' @export
 #'
-adt_get_biocard <- function(path = ".", pattern = "*.xls",
-                            dict_par = NULL, dict_vars = NULL, window = 730,
-                            dat_se = dat_dx, date_se = "date_dx") {
+adt_get_biocard <- function(path = ".",
+                            merge_by = c("dx", "cog", "csf",
+                                         "hippo", "amy", "ec"),
+                            window  = 730, window_overlap = FALSE,
+                            pattern = "*.xls",
+                            dict_par = NULL, dict_vars = NULL) {
 
     ## --------- functions -------------------------------------
     ## convert date
@@ -28,7 +31,7 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
         mvar <- a_map_var("BIOCARD", code, date_name, dict_vars)
         dfmt <- filter(dict_par,
                        file_code == code)[["date_format"]]
-        
+
         dta[date_name] <- as.Date(dta[, mvar], dfmt)
         dta            <- dta[, -grep(mvar, names(dta))]
         dta
@@ -47,6 +50,10 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
     }
 
     ## --------- prepare pars -------------------------------------
+
+    ## source data set of dates for combining data
+    merge_by <- match.arg(merge_by)
+
     dup_list <- c("JHUANONID", "LETTERCODE",
                   "NIHID", "VISITNO", "Diagnosis.at.last.scan",
                   "Scan", "De.Identified.Subject.ID",
@@ -78,18 +85,18 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
     dat_race  <- a_read_file("GE",     file_names, dict_par)
     dat_lsta  <- a_read_file("LIST_A", file_names, dict_par)
     dat_lstb  <- a_read_file("LIST_B", file_names, dict_par)
-    
+
     ## ----------  manipulation ----------------------------------
     dat_cog   <- f_date("COG",  "date_cog",   dat_cog)
     dat_cog   <- f_map("COG",   "subject_id", dat_cog)
 
     dat_dx    <- f_date("DIAG", "date_dx",    dat_dx)
     dat_dx    <- f_map("DIAG",  "subject_id", dat_dx)
-    
+
     dat_csf   <- f_date("CSF",  "date_csf",   dat_csf)
     dat_csf   <- f_map("CSF",   "abeta",      dat_csf)
     dat_csf   <- f_map("CSF",   "subject_id", dat_csf)
-    
+
     dat_demo   <- f_map("DEMO", "subject_id", dat_demo)
     dat_demo <- dat_demo[, -which(names(dat_demo)
                                   %in% c("JHUANONID",
@@ -98,20 +105,25 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
 
     dat_hippo <- f_date("HIPPO", "date_hippo",       dat_hippo)
     dat_hippo <- f_map("HIPPO",  "subject_id",       dat_hippo)
-    dat_hippo <- f_map("HIPPO",  "intracranial_vol_hippo", 
+
+    dat_hippo <- f_map("HIPPO",  "intracranial_vol_hippo",
                        dat_hippo, as.numeric)
-    dat_hippo <- f_map("HIPPO",  "l_hippo",          dat_hippo, as.numeric)
-    dat_hippo <- f_map("HIPPO",  "r_hippo",          dat_hippo, as.numeric)
+
+    dat_hippo <- f_map("HIPPO",  "l_hippo", dat_hippo, as.numeric)
+    dat_hippo <- f_map("HIPPO",  "r_hippo", dat_hippo, as.numeric)
     dat_hippo$bi_hippo <- (dat_hippo$l_hippo + dat_hippo$r_hippo) / 2
-    
+
     ## MRI amygdala
     dat_amy <- f_date("AMY", "date_amy",        dat_amy)
     dat_amy <- f_map("AMY", "subject_id",       dat_amy)
-    dat_amy <- f_map("AMY", "intracranial_vol_amy", dat_amy, as.numeric)
-    dat_amy <- f_map("AMY", "l_amy",            dat_amy, as.numeric)
-    dat_amy <- f_map("AMY", "r_amy",            dat_amy, as.numeric)
+
+    dat_amy <- f_map("AMY", "intracranial_vol_amy",
+                     dat_amy, as.numeric)
+
+    dat_amy <- f_map("AMY", "l_amy", dat_amy, as.numeric)
+    dat_amy <- f_map("AMY", "r_amy", dat_amy, as.numeric)
     dat_amy$bi_amy <- (dat_amy$l_amy + dat_amy$r_amy) / 2
-    
+
     ## MRI EC volume
     dat_ec  <- f_date("EC", "date_ec",         dat_ec)
     dat_ec  <- f_map("EC", "subject_id",       dat_ec)
@@ -129,53 +141,35 @@ adt_get_biocard <- function(path = ".", pattern = "*.xls",
                                          "LETTERCODE",
                                          "NIHID"))]
     dat_race <- f_map("GE", "subject_id", dat_race)
-    
+
     ## exclude subjects from list A and list B
     id_name <- a_map_var("BIOCARD", "LIST_A", "subject_id", dict_vars)
     exid <- c(dat_lsta[[id_name]],
               dat_lstb[[id_name]])
 
+    ## ------------- prepare bases of dates -----------------------------
+    dat_se <- a_window(dat    = get(paste("dat_", merge_by, sep = "")),
+                       v_date = paste("date_", merge_by, sep = ""),
+                       window,
+                       window_overlap)
+
     ## ------------- combine data --------------------------------------
-    
-    ### change dat_dx (cog, csf) get id and
-    
-    f_combine <- function(dat_se, date_se){
-        
-        if(date_se != "date_dx")    tdx    <- a_match(dat_se, date_se, dat_dx,    "date_dx",    window, dup_list)
-        if(date_se != "date_cog")   tcog   <- a_match(dat_se, date_se, dat_cog,   "date_cog",   window, dup_list)
-        if(date_se != "date_csf")   tcsf   <- a_match(dat_se, date_se, dat_csf,   "date_csf",   window, dup_list)
-        if(date_se != "date_hippo") thippo <- a_match(dat_se, date_se, dat_hippo, "date_hippo", window, dup_list)
-        if(date_se != "date_amy")   tamy   <- a_match(dat_se, date_se, dat_amy,   "date_amy",   window, dup_list)
-        if(date_se != "date_ec")    tec    <- a_match(dat_se, date_se, dat_ec,    "date_ec",    window, dup_list)
-        
-        if(date_se != "date_dx") {
-            out <- merge(dat_se, tdx,      by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_cog") out <- merge(out,    tcog,     by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_csf") out <- merge(out,    tcsf,     by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_hippo") out <- merge(out,    thippo,   by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_amy") out <- merge(out,    tamy,     by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_ec") out <- merge(out,    tec,      by = c("subject_id", date_se), all.x = TRUE)
-        } 
-        else {
-            out <- merge(dat_se, tcog,     by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_csf") out <- merge(out,    tcsf,     by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_hippo") out <- merge(out,    thippo,   by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_amy") out <- merge(out,    tamy,     by = c("subject_id", date_se), all.x = TRUE)
-            if(date_se != "date_ec") out <- merge(out,    tec,      by = c("subject_id", date_se), all.x = TRUE)
-        }
-    }
-    
-    out <- f_combine(dat_se, date_se)
-    
-    dat <- merge(out,    dat_demo, by = c("subject_id"), all.x = TRUE)
+    dat_se <- a_match(dat_se, dat_dx,    "date_dx",    dup_list)
+    dat_se <- a_match(dat_se, dat_cog,   "date_cog",   dup_list)
+    dat_se <- a_match(dat_se, dat_csf,   "date_csf",   dup_list)
+    dat_se <- a_match(dat_se, dat_hippo, "date_hippo", dup_list)
+    dat_se <- a_match(dat_se, dat_amy,   "date_amy",   dup_list)
+    dat_se <- a_match(dat_se, dat_ec,    "date_ec",    dup_list)
+
+    dat_se <- dat_se %>%
+        left_join(dat_demo, by = c("subject_id")) %>%
+        left_join(dat_race, by = c("subject_id"))
 
     ## load ApoE-4
-    dat <- merge(dat, dat_race, by = "subject_id", all.x = TRUE)
-    dat$apoe <- as.numeric(dat[, "APOECODE"] %in% c(3.4, 4.4))
-    dat$apoe[dat["APOECODE"] == 2.4] <- NA
+    dat_se$apoe <- as.numeric(dat_se[["APOECODE"]] %in% c(3.4, 4.4))
+    dat_se$apoe[dat_se["APOECODE"] == 2.4] <- NA
 
     ## return
-    return(list(data = dat,
+    return(list(data = dat_se,
                 exid = exid))
-
 }
