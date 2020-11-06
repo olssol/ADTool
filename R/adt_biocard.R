@@ -154,12 +154,12 @@ adt_get_biocard <- function(path = ".",
                        window_overlap)
 
     ## ------------- combine data --------------------------------------
-    dat_se <- a_match(dat_se, dat_dx,    "date_dx",    dup_list)
-    dat_se <- a_match(dat_se, dat_cog,   "date_cog",   dup_list)
-    dat_se <- a_match(dat_se, dat_csf,   "date_csf",   dup_list)
-    dat_se <- a_match(dat_se, dat_hippo, "date_hippo", dup_list)
-    dat_se <- a_match(dat_se, dat_amy,   "date_amy",   dup_list)
-    dat_se <- a_match(dat_se, dat_ec,    "date_ec",    dup_list)
+    dat_se <- a_match(dat_se, dat_dx,    "date_dx",    duplist)
+    dat_se <- a_match(dat_se, dat_cog,   "date_cog",   duplist)
+    dat_se <- a_match(dat_se, dat_csf,   "date_csf",   duplist)
+    dat_se <- a_match(dat_se, dat_hippo, "date_hippo", duplist)
+    dat_se <- a_match(dat_se, dat_amy,   "date_amy",   duplist)
+    dat_se <- a_match(dat_se, dat_ec,    "date_ec",    duplist)
 
     dat_se <- dat_se %>%
         left_join(dat_demo, by = c("subject_id")) %>%

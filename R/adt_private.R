@@ -65,6 +65,7 @@ a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
             d <- window / 2
         } else {
             d <- min(as.numeric(d2), window / 2, na.rm = T) # use window/2 or just window?
+
         }
 
         d1 + left * d
@@ -109,10 +110,7 @@ a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
 #'
 a_match <- function(dat_se, dat_marker, m_date, duplist) {
 
-    exc_cols   <- names(dat_marker)[which(names(dat_marker) %in% duplist)]
-#    dat_marker <- dat_marker %>%
-#        mutate(m_date = !!as.name(m_date))
-
+    exc_cols  <- names(dat_marker)[which(names(dat_marker) %in% duplist)]
     dat_match <- dat_se %>%
         select(subject_id, date, date_left, date_right) %>%
         left_join(dat_marker %>%
@@ -123,6 +121,7 @@ a_match <- function(dat_se, dat_marker, m_date, duplist) {
         mutate(diff = abs(date - !!as.name(m_date))) %>%
         group_by(subject_id, date) %>%
         arrange(diff, .by_group = T) %>%
+
         filter(row_number() == 1) %>%
         select(subject_id, date, m_date)
 
