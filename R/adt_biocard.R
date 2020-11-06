@@ -166,7 +166,7 @@ adt_get_biocard <- function(path = ".",
         left_join(dat_race, by = c("subject_id"))
 
     ## load ApoE-4
-    dat_se$apoe <- as.numeric(dat[, "APOECODE"] %in% c(3.4, 4.4))
+    dat_se$apoe <- as.numeric(dat_se[["APOECODE"]] %in% c(3.4, 4.4))
     dat_se$apoe[dat_se["APOECODE"] == 2.4] <- NA
 
     ## return
