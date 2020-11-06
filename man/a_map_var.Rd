@@ -4,16 +4,16 @@
 \alias{a_map_var}
 \title{Map Variables}
 \usage{
-a_map_var(data_name0 = "BIOCARD", table_code0, var_name, var_file)
+a_map_var(data_name = "BIOCARD", table_code0, var_name, dict_col_name)
 }
 \arguments{
-\item{data_name0}{Dataset where the variable from}
-
 \item{table_code0}{Table where the variable from}
 
 \item{var_name}{Name of the variable}
 
-\item{var_file}{Variables mapping file}
+\item{dict_col_name}{Variables mapping file}
+
+\item{data_name0}{Dataset where the variable from}
 }
 \value{
 The real name in raw data
@@ -23,7 +23,7 @@ Map Variables
 }
 \examples{
 \dontrun{
-map_var("BIOCARD", "CSF", "date", var_file)
+map_var("BIOCARD", "CSF", "date", dict_col_name)
 }
 
 

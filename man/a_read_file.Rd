@@ -4,14 +4,14 @@
 \alias{a_read_file}
 \title{Read data from external files}
 \usage{
-a_read_file(code, file_names, dict_par)
+a_read_file(code, file_names, dict_tbl)
 }
 \arguments{
 \item{code}{Code of subtable ("Cognitive" as "COG")}
 
 \item{file_names}{List of all files name in path}
 
-\item{dict_par}{Parameters dictionary (could be modified if needed)}
+\item{dict_tbl}{Parameters dictionary (could be modified if needed)}
 }
 \value{
 

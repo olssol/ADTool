@@ -10,8 +10,8 @@ adt_get_biocard(
   window = 730,
   window_overlap = FALSE,
   pattern = "*.xls",
-  dict_par = NULL,
-  dict_vars = NULL
+  dict_tbl = NULL,
+  dict_col_name = NULL
 )
 }
 \arguments{
@@ -23,34 +23,34 @@ Possible values for the baseline time are "dx" (diagnosis), "cog" (cognitive), "
 "hippo" (hippocampus), "amy" (amygdala), "ec" (entorhinal).}
 
 \item{window}{An integer (unit of days) indicating the maximum acceptable length of time interval between baseline time and biomarker test time.
-The defaule is set to be 730 days. For most data, the time windows are calculated from the baseline time 
+The default is set to be 730 days. For most data, the time windows are calculated from the baseline time 
 (left window = the midpoint between current and the previous time point; right window = the midpoint between current and the next time point).
-If the time windows are longer than the maximum acceptable length, than force to select biomarker within the maximum window length we set. 
+If the time windows are longer than the maximum acceptable length, then force to select biomarker within the maximum window length we set. 
 For the first and last baseline time, since there is no "previous" or "next" time point availiable, use the maximum acceptable window length instead.}
 
-\item{window_overlap}{A logical value idicating the time window setting. Default "False". If true, all time windows will set from 1/2 "window" days before
-the baseline time to the 1/2 "window" days after the baseline time. In this case, the time windows may overlap, which means some biomarkers may be 
-merged to multiple baseline data. If false, will use the windows calculated from the blaseline times. The left window is set to be the midpoint 
-between current and the previous time point. The right window is set to be the midpoint between current and the next time point. 
-For the first and last baseline time, since there is no "previous" or "next" time point availiable, 
+\item{window_overlap}{A logical value indicating the time window setting. Default "False." If true, all time windows will set from 1/2 "window" days before
+the baseline time to the 1/2 "window" days after baseline. In this case, the time windows may overlap, which means some biomarkers may be 
+merged into multiple baseline data. If false, the windows will be calculated from the blaseline times. The left window is set to be the midpoint 
+between the current and the previous time point. The right window is set to be the midpoint between the current and the next time point. 
+For the first and last baseline time, since there is no "previous" or "next" time point available, 
 use the maximum acceptable window length (set by the parameter "window") instead.}
 
 \item{pattern}{A string indicating the pattern of all the data files. Default is "*.xls" (should work for both .xls and .xlsx). 
 This pattern is used to read all table names from the path.}
 
-\item{dict_par}{A path of data file (.csv) of the parameters dictionary. The default dictionary is appended in the package. 
-Since the parameters in tables may vary, it could be modified by using costomized parameters dictionary. The format can refer to the 
+\item{dict_tbl}{A path of data file (.csv) of the parameters dictionary. The default dictionary is appended in the package. 
+Since the parameters in tables may vary, it could be modified by using a costomized parameter dictionary. The format can refer to the 
 appended dictionary.}
 
-\item{dict_vars}{A path of data file (.csv) of the variables dictionary. The default dictionary is appended in the package. 
-Since the variables in tables may vary, it could be modified by using costomized variables dictionary. The format can refer to the 
+\item{dict_col_name}{A path of data file (.csv) of the variables dictionary. The default dictionary is appended in the package. 
+Since the variables in tables may vary, it could be modified by using a costomized variable dictionary. The format can refer to the 
 appended dictionary.}
 }
 \value{
 The returned value is a list with the following items:
 \itemize{
    \item data: The data includes patients' ids, baseline times, corresponding biomarkers, and biomarker test times.
-   \item exid: The subject_ids fo patients that are either not enrolled or impaired at baseline. 
+   \item exid: The subject_ids of patients that are either not enrolled or impaired at baseline. 
 }
 }
 \description{
@@ -64,7 +64,7 @@ dt_biocard <- get_biocard(path, merge_by = "dx")
 # with costomized window
 dt_biocard <- get_biocard(path, merge_by = "dx", window = 365, window_overlap = TRUE)
 # with costomized dictionary
-dt_biocard <- get_biocard(path, merge_by = "dx", dict_par = "\BIOCARD\DATA\dict_par.csv")
+dt_biocard <- get_biocard(path, merge_by = "dx", dict_tbl = "\BIOCARD\DATA\dict_tbl.csv")
 }
 
 }

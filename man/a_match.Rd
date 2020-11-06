@@ -28,7 +28,7 @@ assignment criteria, take first
 }
 \examples{
 \dontrun{
-tcog <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", var_file)],
+tcog <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", dict_col_name)],
 xdate = x$date,
 dat = dat_cog, yidname = COG$id, ydatename = "date")
 }

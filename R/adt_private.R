@@ -2,12 +2,12 @@
 #'
 #' @param code       Code of subtable ("Cognitive" as "COG")
 #' @param file_names List of all files name in path
-#' @param dict_par   Parameters dictionary (could be modified if needed)
+#' @param dict_tbl   Parameters dictionary (could be modified if needed)
 #'
 #' @return
 #'
-a_read_file <- function(code, file_names, dict_par) {
-    key_start  <- dict_par %>%
+a_read_file <- function(code, file_names, dict_tbl) {
+    key_start  <- dict_tbl %>%
         filter(file_code == code) %>%
         select(file_name, start_row)
 
@@ -27,23 +27,23 @@ a_read_file <- function(code, file_names, dict_par) {
 #' @param data_name0  Dataset where the variable from
 #' @param table_code0 Table where the variable from
 #' @param var_name    Name of the variable
-#' @param var_file    Variables mapping file
+#' @param dict_col_name    Variables mapping file
 #'
 #' @return The real name in raw data
 #'
 #' @examples
 #' \dontrun{
-#' map_var("BIOCARD", "CSF", "date", var_file)
+#' map_var("BIOCARD", "CSF", "date", dict_col_name)
 #' }
 #'
 #'
 #' @export
 #'
-a_map_var <- function(data_name0 = "BIOCARD", table_code0, var_name, var_file) {
-    var_file <- data.frame(var_file)
-    res <- filter(var_file, data_name == data_name0 &
+a_map_var <- function(data_name = "BIOCARD", table_code0, var_name, dict_col_name) {
+    dict_col_name <- data.frame(dict_col_name)
+    res <- filter(dict_col_name, data_source == data_name &
                             table_code == table_code0 &
-                            variables == var_name)[["label"]]
+                            col_name == var_name)[["old_col_name"]]
     res <- gsub(" ", "\\.", res)
     res <- gsub("\\(", "\\.", res)
     res <- gsub("\\)", "\\.", res)
@@ -59,12 +59,12 @@ a_map_var <- function(data_name0 = "BIOCARD", table_code0, var_name, var_file) {
 a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
     g_win <- function(d1, d2, left) {
         if (is.na(d2)){
-            d2 <- window
+            d2 <- window / 2
         }
         if (window_overlap) {
             d <- window / 2
         } else {
-            d <- min(as.numeric(d2), window / 2, na.rm = T) # use window/2 or just window?
+            d <- min(as.numeric(d2), window / 2, na.rm = T) 
 
         }
 
@@ -103,7 +103,7 @@ a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
 #'
 #' @examples
 #' \dontrun{
-#' tcog <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", var_file)],
+#' tcog <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", dict_col_name)],
 #' xdate = x$date,
 #' dat = dat_cog, yidname = COG$id, ydatename = "date")
 #' }

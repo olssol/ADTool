@@ -43,17 +43,17 @@ adt_tk_query <- function(data, str = NULL, csv_fname = NULL,
 #' Get dictionary 
 #'
 #' @param dict      Name of the dictionary. 
-#'                  The available options are: "par", "vars", "adni"
+#'                  The available options are: "tbl", "col_name", "adni"
 #' @param csv_fname External dictionary. If change of default setting needed
 #'
 #' @examples
 #' \dontrun{
-#' dict_par <- adt_get_dict(dict = "par")
-#' dict_par <- adt_get_dict(dict = "par", csv_fname = "foo_par.csv")}
+#' dict_par <- adt_get_dict(dict = "tbl")
+#' dict_par <- adt_get_dict(dict = "tbl", csv_fname = "foo_tbl.csv")}
 #'
 #' @export
 #'
-adt_get_dict <- function(dict = c("par", "vars", "adni"), csv_fname = NULL) {
+adt_get_dict <- function(dict = c("tbl", "col_name", "adni"), csv_fname = NULL) {
     dict     <- match.arg(dict)
     rst_dict <- get(paste("dict_", dict, sep = ""))
 
