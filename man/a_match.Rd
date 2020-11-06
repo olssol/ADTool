@@ -4,7 +4,7 @@
 \alias{a_match}
 \title{Map Biomarkers Data to Diagnosis Visits}
 \usage{
-a_match(dat_dx, dat_marker, m_date, window, duplist)
+a_match(dat_se, dat_marker, m_date, duplist)
 }
 \arguments{
 \item{xid}{Id in diagnosis visit table}
