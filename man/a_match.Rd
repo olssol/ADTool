@@ -2,35 +2,31 @@
 % Please edit documentation in R/adt_private.R
 \name{a_match}
 \alias{a_match}
-\title{Map Biomarkers Data to Diagnosis Visits}
+\title{Map Biomarkers Data to The Baseline Visits}
 \usage{
-a_match(dat_dx, dat_marker, m_date, window, duplist)
+a_match(dat_se, dat_marker, m_date, duplist)
 }
 \arguments{
-\item{xid}{Id in diagnosis visit table}
+\item{dat_se}{A dataset that will be merged.}
 
-\item{xdate}{Date of visit}
+\item{dat_marker}{A data set including new biomarker that will be merged.}
 
-\item{dat}{Table includes biomarkers}
+\item{m_date}{A string indicating the name of measure date in dat_marker.}
 
-\item{yidname}{Id in the table includes biomarkers}
-
-\item{ydatename}{Name of date in the table includes biomarkers}
+\item{duplist}{A list of duplicated columns names.}
 }
 \value{
-The matched biomarker data to diagnosis visits
+The matched (larger) dateset including newly added biomarker data.
 }
 \description{
-Map all marker data to diagnosis visits for each diagnosis visit, assign the
-closest markers within a 730-day-each-side two-sided window if no marker
-satisfies assignment criteria, mark as missing if two marker satisfy
-assignment criteria, take first
+Map all marker data to baseline visits. For each visit, assign the
+closest markers within the setted window. If no marker
+satisfies assignment criteria, mark as missing. If two marker satisfy
+assignment criteria, take first one.
 }
 \examples{
 \dontrun{
-tcog <- mymatch(xid = x[map_var("BIOCARD", "DIAG", "subject_id", var_file)],
-xdate = x$date,
-dat = dat_cog, yidname = COG$id, ydatename = "date")
+dat_se <- a_match(dat_se, dat_dx, "date_dx", duplist)
 }
 
 }

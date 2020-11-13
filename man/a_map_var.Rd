@@ -4,27 +4,29 @@
 \alias{a_map_var}
 \title{Map Variables}
 \usage{
-a_map_var(data_name0 = "BIOCARD", table_code0, var_name, var_file)
+a_map_var(data_name = "BIOCARD", table_code0, var_name, dict_col_name)
 }
 \arguments{
-\item{data_name0}{Dataset where the variable from}
+\item{data_name}{A string indicating the source of data. Default "BIOCARD."}
 
-\item{table_code0}{Table where the variable from}
+\item{table_code0}{A string indicating the code of table where the variable (column name) from.}
 
-\item{var_name}{Name of the variable}
+\item{var_name}{A string indicating the name of the variable (column name).}
 
-\item{var_file}{Variables mapping file}
+\item{dict_col_name}{A path of data file (.csv) of the variables dictionary. The default dictionary is appended in the package. 
+Since the column names in tables may vary, it could be modified by using a costomized column names dictionary. The format can refer to the 
+appended dictionary.}
 }
 \value{
-The real name in raw data
+The real name in the original data
 }
 \description{
-Map Variables
+Get the original column names. Since the column names in tables may vary, it could be modified by using a costomized column names dictionary. The format can refer to the 
+appended dictionary.
 }
 \examples{
 \dontrun{
-map_var("BIOCARD", "CSF", "date", var_file)
+a_map_var("BIOCARD", "CSF", "date", dict_col_name)
 }
-
 
 }

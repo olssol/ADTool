@@ -86,29 +86,61 @@
 #'
 NULL
 
-#' Dictionary of columns 
-#'
-#' @name dict_par
+#' Dictionary of Column Names
+#' 
+#' This dictionary maps the original column names (old_col_name) to the column names of generated analysis dataset. 
+#' In the raw data, the same variable may have different names. This dictionary could be used to uniform variable names.
+#' Also, as some column names in the raw data may be complicated (including space, unit, special symbols, etc.), this dictionary is 
+#' used to simplify the column names.
+#' 
+#' @name dict_col_names
 #'
 #' @docType data
 #'
-#' @usage data(grav)
-#' #'
-#' @format A dataframe with the following variables:
+#' @usage data(dict_col_names)
+#' 
+#' @format A dataframe with the following variables (all variables are in string type):
 #' \itemize{
-#'   \item{file_code}{}
-#'   \item{file_name}{}
+#'   \item{col_name}{The column names used in the analysis dateset.}
+#'   \item{data_source}{The source of the date, such as "BIOCARD."}
+#'   \item{table_code}{The code of subtable. The options are "COG" (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), 
+#' "DEMO" (Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC" (Entorhinal), "GE" (Genetics), 
+#' "LIST_A" (list of patients not enrolled), "LIST_B" (list of patients impaired). }
+#'   \item{old_col_name}{The column names in the raw data.}
 #' }
 NULL
 
-#' Dictionary of variables 
+#' Dictionary of Table Settings 
+#' 
+#' This dictionary includes the basic setting of subtables, such as "file_code", "file_name", "start_row", and "date_format." 
+#' In the raw data, the starting row and date type may vary for different subtables. This dictionary could be used to store these settings.
+#' Also, since the subtables will have different names (maybe with time as a suffix), this dictionary is used to simplify the subtable names.
 #'
-#' @name dict_vars
+#' @name dict_tbl
 #'
 #' @format A dataframe with the following variables:
 #' \itemize{
-#'   \item{file_code}{}
-#'   \item{file_name}{}
+#'   \item{file_code}{The code of subtable. The options are "COG" (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), 
+#' "DEMO" (Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC" (Entorhinal), "GE" (Genetics), 
+#' "LIST_A" (list of patients not enrolled), "LIST_B" (list of patients impaired). }
+#'   \item{file_name}{The identifiable keywords in the subtable names.}
+#'   \item{start_row}{Integers indicating the starting row when reading subtables. The default value is 1.}
+#'   \item{date_format}{The format of the date in subtables. The default is "%Y-%m-%d."}
+#' }
+NULL
+
+#' Dictionary of Data 
+#' 
+#' This dictionary includes all the variables names in the analysis dataset. This dictionary could be used to check 
+#' the location and discription of each variable.
+#'
+#' @name dict_data
+#'
+#' @format A dataframe with the following variables:
+#' \itemize{
+#'   \item{Column_Name}{The name of variables in the analysis dataset.}
+#'   \item{Location}{The location where this variable from.}
+#'   \item{Description}{A description introduces the data type, range, meaning, and mapping (if use one hot encoding).}
 #' }
 NULL
 

@@ -4,17 +4,31 @@
 \alias{adt_tk_query}
 \title{Query data frames}
 \usage{
-adt_tk_query(data, str = NULL, csv_fname = NULL, ignore_case = TRUE)
+adt_tk_query(data, str = NULL, csv_fname = NULL)
 }
 \arguments{
-\item{data}{data sets}
+\item{data}{A dataset. Possible choices are "dict_tbl": the dictionary for the structure of tables, 
+"dict_cil_name": the dictionary maps the original column names (old_col_name) to the column names of generated analysis dataset,
+"dict_data": This dictionary includes all the variables names in the analysis dataset. This dictionary could be used to check 
+the location and description of each variable.}
 
-\item{str}{String to search}
+\item{str}{String to search. Default value is NULL. If NULL, this function is used to check the entire dictionary.
+If input a string (the variable name of the analysis dataset), this function is used to check the location and description of the variable.}
 
-\item{csv_fname}{CSV filename to be saved}
-
-\item{ignore_case}{Ignore case during matching}
+\item{csv_fname}{A string indicating the CSV filename to be saved (saved to the default location). Default is NULL. The saved file is in 
+.scv format.}
+}
+\value{
+The search result (either an entire dataset or the location and description of searched variable).
 }
 \description{
-Query data frames
+Get the dictionary or dictionary data for creating new dictionary and checking variables meanings.
+}
+\examples{
+\dontrun{
+adt_tk_query(dict_tbl)
+adt_tk_query(dict_col_name, csv_fname = "col_name.csv")
+adt_tk_query(dict_data, "waissmac")
+adt_tk_query(dict_data, "MCIN1EX")}
+
 }
