@@ -24,8 +24,8 @@
 #' @param dict_tbl A path of data file (.csv) of the parameters dictionary. The default dictionary is appended in the package. 
 #' Since the parameters in tables may vary, it could be modified by using a costomized parameter dictionary. The format can refer to the 
 #' appended dictionary.
-#' @param dict_col_name A path of data file (.csv) of the variables dictionary. The default dictionary is appended in the package. 
-#' Since the variables in tables may vary, it could be modified by using a costomized variable dictionary. The format can refer to the 
+#' @param dict_col_name A path of data file (.csv) of the column names dictionary. The default dictionary is appended in the package. 
+#' Since the column names in tables may vary, it could be modified by using a costomized variable dictionary. The format can refer to the 
 #' appended dictionary.
 #' 
 #' @return The returned value is a list with the following items:

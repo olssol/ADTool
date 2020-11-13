@@ -7,13 +7,18 @@
 adt_get_dict(dict = c("tbl", "col_name", "adni"), csv_fname = NULL)
 }
 \arguments{
-\item{dict}{Name of the dictionary. 
-The available options are: "tbl", "col_name", "adni"}
+\item{dict}{A string indicating the name of the dictionary. 
+The available options are: "tbl": the dictionary for table structure, 
+"col_name": the dictionary for mapping column names, "adni": the dictionary for ADNI data.}
 
-\item{csv_fname}{External dictionary. If change of default setting needed}
+\item{csv_fname}{The path of external dictionary. If changes of default dictionaries needed, then the costomized dictionary could be added here. 
+However, the format of the costomized dictionary should follow the default one.}
+}
+\value{
+The dictionary dateset.
 }
 \description{
-Get dictionary
+Get the needed dictionary data for leading subtables and mapping variables.
 }
 \examples{
 \dontrun{

@@ -42,8 +42,8 @@ This pattern is used to read all table names from the path.}
 Since the parameters in tables may vary, it could be modified by using a costomized parameter dictionary. The format can refer to the 
 appended dictionary.}
 
-\item{dict_col_name}{A path of data file (.csv) of the variables dictionary. The default dictionary is appended in the package. 
-Since the variables in tables may vary, it could be modified by using a costomized variable dictionary. The format can refer to the 
+\item{dict_col_name}{A path of data file (.csv) of the column names dictionary. The default dictionary is appended in the package. 
+Since the column names in tables may vary, it could be modified by using a costomized variable dictionary. The format can refer to the 
 appended dictionary.}
 }
 \value{
