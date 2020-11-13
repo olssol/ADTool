@@ -58,13 +58,16 @@ a_map_var <- function(data_name0 = "BIOCARD", table_code0, var_name, var_file) {
 #'
 a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
     g_win <- function(d1, d2, left) {
-        if (is.na(d2)){
-            d2 <- window
+        if (is.na(d2)) {
+            d2 <- window / 2
         }
+
         if (window_overlap) {
             d <- window / 2
         } else {
-            d <- min(as.numeric(d2), window / 2, na.rm = T) # use window/2 or just window?
+            d <- min(as.numeric(d2),
+                     window / 2,
+                     na.rm = T)
 
         }
 
@@ -109,7 +112,6 @@ a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
 #' }
 #'
 a_match <- function(dat_se, dat_marker, m_date, duplist) {
-
     exc_cols  <- names(dat_marker)[which(names(dat_marker) %in% duplist)]
     dat_match <- dat_se %>%
         select(subject_id, date, date_left, date_right) %>%
@@ -117,16 +119,15 @@ a_match <- function(dat_se, dat_marker, m_date, duplist) {
                   select(subject_id, m_date),
                   by = "subject_id") %>%
         filter(!!as.name(m_date) >= date_left &
-                   !!as.name(m_date) < date_right) %>%
+               !!as.name(m_date) < date_right) %>%
         mutate(diff = abs(date - !!as.name(m_date))) %>%
         group_by(subject_id, date) %>%
         arrange(diff, .by_group = T) %>%
-
         filter(row_number() == 1) %>%
         select(subject_id, date, m_date)
 
     dat_se %>%
-        left_join(dat_match, by = c("subject_id", "date")) %>%
+        left_join(dat_match,  by = c("subject_id", "date")) %>%
         left_join(dat_marker, by = c("subject_id", m_date)) %>%
-        select(- exc_cols)
+        select(-exc_cols)
 }
