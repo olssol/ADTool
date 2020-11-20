@@ -87,7 +87,7 @@ adt_get_biocard <- function(path = ".",
                   "Scan", "De.Identified.Subject.ID",
                   "Subject.NIHID", "Age.at.Scan",
                   "Diagnosis..at.last.scan", "Consensus.Diagnosis",
-                  "intracranial_vol")
+                  "intracranial_vol", "X")
     
     ## list all file names matching the pattern
     file_names <- list.files(path = path, pattern = pattern, full.names = TRUE)
@@ -191,13 +191,37 @@ adt_get_biocard <- function(path = ".",
     
     dat_se <- dat_se %>%
         left_join(dat_demo, by = c("subject_id")) %>%
-        left_join(dat_race, by = c("subject_id"))
+        left_join(dat_race, by = c("subject_id")) %>%
+        select(- c("date", "date_left", "date_right")) %>%
+        left_join(dat_dx %>% select(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID", "VISITNO", "date_dx")), by = c("subject_id", "date_dx"))
     
     ## load ApoE-4
     dat_se$apoe <- as.numeric(dat_se[["APOECODE"]] %in% c(3.4, 4.4))
     dat_se$apoe[dat_se["APOECODE"] == 2.4] <- NA
     
+    ## creat dictionary
+    dict_data <- adt_get_dict("data") %>% 
+                     left_join(dict_col_name %>% 
+                                  group_by(col_name) %>% 
+                                  summarise(sub_tbl = 
+                                                    paste(unique(table_code), collapse = ", ")), by = "col_name") %>% 
+                    left_join(dict_col_name %>% 
+                                  group_by(col_name) %>% 
+                                  summarise(ori_name = 
+                                                    paste(unique(old_col_name), collapse = ", ")), by = "col_name") %>% 
+                    mutate(table_code  = ifelse(is.na(sub_tbl),  table_code,  sub_tbl)) %>% 
+                    mutate(information = ifelse(is.na(ori_name), information, paste(ori_name, information, sep = ", "))) %>% 
+                    mutate(location = paste(data_source, table_code, sep = "-"), 
+                               description = paste(information, range_of_values, query, sep = "; ")) %>% 
+                    select(col_name, location, description)
+                    
+    
     ## return
-    return(list(data = dat_se,
-                exid = exid))
+    s <- list(data          = dat_se,
+              exid          = exid,
+              dict_tbl      = dict_tbl,
+              dict_col_name = dict_col_name, 
+              dict_data     = dict_data)
+    class(s) <- "biocard"
+    return(s)
 }

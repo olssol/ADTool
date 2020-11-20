@@ -28,7 +28,7 @@ adt_tk_query <- function(data, str = NULL, csv_fname = NULL) {
         rst <- data
     } else {
         lst_inx <- sapply(colnames(data),
-                          function(x) grep(str, data[[x]]))
+                          function(x) grep(str, data[[x]], ignore.case = TRUE))
 
         inx <- NULL
         for (i in seq_len(length(lst_inx))) {
@@ -73,18 +73,93 @@ adt_tk_query <- function(data, str = NULL, csv_fname = NULL) {
 #'
 #' @export
 #'
-adt_get_dict <- function(dict = c("tbl", "col_name", "adni"), csv_fname = NULL) {
+adt_get_dict <- function(dict = c("tbl", "col_name", "adni", "data"), csv_fname = NULL) {
     dict     <- match.arg(dict)
     rst_dict <- get(paste("dict_", dict, sep = ""))
 
     if (!is.null(csv_fname)) {
-        csv_dict <- read.csv(file = csv_fname)
+        csv_dict <- read.csv(file = csv_fname, row.names = 1)
         if (!identical(names(rst_dict), names(csv_dict)))
-            stop("Data structure in the CSV file is wrong.
-              Check the dictionary provided in the package.")
+            stop("Data structure in the import CSV file is wrong.
+              Please match the columns as the dictionary provided in the package using.")
+        if (dict == "tbl") {
+            if(!identical(csv_dict$file_code, rst_dict$file_code)) {
+                stop("Please use the same file_code in the imported dict_tbl as 
+                     the dictionary provided in the package using.")
+            }
+            if(!identical(csv_dict$file_name, rst_dict$file_name)) {
+                stop("Please use the same file_name in the imported dict_tbl as 
+                     the dictionary provided in the package using.")
+            }
+        }
+        if (dict == "col_name") {
+            if(!identical(csv_dict$col_name, rst_dict$col_name)) {
+                stop("Please use the same col_name in the imported dict_col_name as 
+                     the dictionary provided in the package using.")
+            }
+            if(!identical(csv_dict$data_source, rst_dict$data_source)) {
+                stop("Please use the same data_source in the imported dict_col_name as 
+                     the dictionary provided in the package using.")
+            }
+            if(!identical(csv_dict$table_code, rst_dict$table_code)) {
+                stop("Please use the same table_code in the imported dict_col_name as 
+                     the dictionary provided in the package using.")
+            }
+        }
+        
 
         rst_dict <- csv_dict
     }
 
     rst_dict
 }
+
+#' Query Function
+#'
+#' @param biocard the object
+#'
+#' @return
+#' @export
+#'
+#' @examples
+adt_query <- function(biocard) {
+    UseMethod("biocard")
+}
+
+#' Search description from dictionary
+#'
+#' @param biocard the object
+#' @param var The variable name to query
+#' @param opt Searching options
+#'
+#' @return
+#' @export
+#'
+#' @examples
+adt_query <- function(biocard, var, opt = c("general", "variable", "sources")) {
+    opt <- match.arg(opt)
+    dict_data <- biocard$dict_data
+    if (opt == "general") {
+        res <- adt_tk_query(dict_data, var)
+    }
+    if (opt == "variable") {
+        res <- adt_tk_query(dict_data, var) %>%
+                filter(col_name == var)
+    }
+    if (opt == "sources") {
+        res <- adt_tk_query(dict_data, var) %>%
+                filter(grepl(var, location, ignore.case = TRUE))
+    }
+    if (dim(res)[1] == 0) {
+        print("No records found.")
+        return(NULL)
+    }
+    else {
+       return(res)
+    }
+}
+
+
+
+
+
