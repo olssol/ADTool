@@ -193,7 +193,7 @@ adt_get_biocard <- function(path = ".",
         left_join(dat_demo, by = c("subject_id")) %>%
         left_join(dat_race, by = c("subject_id")) %>%
         select(- c("date", "date_left", "date_right")) %>%
-        left_join(dat_cog %>% select(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID", "VISITNO")), by = "subject_id")
+        left_join(dat_dx %>% select(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID", "VISITNO", "date_dx")), by = c("subject_id", "date_dx"))
     
     ## load ApoE-4
     dat_se$apoe <- as.numeric(dat_se[["APOECODE"]] %in% c(3.4, 4.4))
