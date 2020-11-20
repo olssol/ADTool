@@ -4,7 +4,7 @@
 \alias{adt_get_dict}
 \title{Get dictionary}
 \usage{
-adt_get_dict(dict = c("tbl", "col_name", "adni"), csv_fname = NULL)
+adt_get_dict(dict = c("tbl", "col_name", "adni", "data"), csv_fname = NULL)
 }
 \arguments{
 \item{dict}{A string indicating the name of the dictionary. 
