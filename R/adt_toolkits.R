@@ -83,8 +83,8 @@ adt_get_dict <- function(dict = c("tbl", "col_name", "adni", "data"), csv_fname 
             stop("Data structure in the import CSV file is wrong.
               Please match the columns as the dictionary provided in the package using.")
         if (dict == "tbl") {
-            if(!identical(csv_dict$file_code, rst_dict$file_code)) {
-                stop("Please use the same file_code in the imported dict_tbl as 
+            if(!identical(csv_dict$table_code, rst_dict$table_code)) {
+                stop("Please use the same table_code in the imported dict_tbl as 
                      the dictionary provided in the package using.")
             }
             if(!identical(csv_dict$file_name, rst_dict$file_name)) {

@@ -11,7 +11,7 @@ adt_get_biocard(
   window_overlap = FALSE,
   pattern = "*.xls",
   dict_tbl = NULL,
-  dict_col_name = NULL
+  dict_col_update = NULL
 )
 }
 \arguments{
