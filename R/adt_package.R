@@ -10,6 +10,8 @@
 #' @importFrom readxl read_xlsx
 #' @importFrom gdata read.xls
 #' @import dplyr 
+#' @import tidyr
+#' @import xlsx
 #'
 #' @importFrom stats approxfun as.formula binomial cov density ecdf glm
 #'     integrate optim predict quantile sd var

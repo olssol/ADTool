@@ -51,14 +51,15 @@ adt_get_biocard <- function(path = ".",
                                          "hippo", "amy", "ec"),
                             window  = 730, window_overlap = FALSE,
                             pattern = "*.xls",
-                            dict_tbl = NULL, dict_col_name = NULL) {
+                            dict_tbl = NULL, 
+                            dict_col_update = NULL) {
     
     ## --------- functions -------------------------------------
     ## convert date
     f_date <- function(code, date_name, dta) {
         mvar <- a_map_var("BIOCARD", code, date_name, dict_col_name)
         dfmt <- filter(dict_tbl,
-                       file_code == code)[["date_format"]]
+                       table_code == code)[["date_format"]]
         
         dta[date_name] <- as.Date(dta[, mvar], dfmt)
         dta            <- dta[, -grep(mvar, names(dta))]
@@ -75,6 +76,34 @@ adt_get_biocard <- function(path = ".",
             dta[var] <- lapply(dta[var], fc)
         
         dta
+    }
+    
+    ## check data
+    f_check <- function(path = path, pattern = pattern, dict_data, dict_col_name, dict_tbl) {
+        isin <- function(var_name, data){
+            res <- gsub(" ", "\\.", var_name)
+            res <- gsub('\\s*[].()@!#$%^&"]\\s*', "\\.", res)
+            return(res %in% names(eval(as.name(data))))
+        }
+        table_list <- list.files(path = path, pattern = pattern, full.names = FALSE)
+        dict_tbl_sub <- dict_tbl %>% 
+            select(table_code, inter_name, key_words)
+        default_names <- dict_col_name %>%
+            filter(data_source == "BIOCARD") %>%
+            select(col_name, table_code, old_col_name) %>%
+            left_join(dict_tbl_sub, by = "table_code") %>%
+            left_join(dict_data, by = "col_name") %>%
+            rowwise() %>%
+            mutate(table_name = table_list[grep(key_words, table_list)]) %>%
+            mutate(nedt = isin(old_col_name, inter_name))
+        edit_names <- default_names %>%
+            filter(nedt == "FALSE") %>%
+            unite(description, info, values, range, sep = "; ") %>%
+            select(old_col_name, description, table_code, table_name) %>% 
+            mutate(new_col_name = NA) %>% 
+            arrange(table_name)
+        res <- list(default_names, edit_names)
+        return(res)
     }
     
     ## --------- prepare pars -------------------------------------
@@ -97,10 +126,18 @@ adt_get_biocard <- function(path = ".",
     else
         dict_tbl <- adt_get_dict("tbl", csv_fname = dict_col_name)
     
-    if (is.null(dict_col_name))
-        dict_col_name <- adt_get_dict("col_name")
+    if (!is.null(dict_col_update)) {
+        dict_update <- read_xlsx(dict_col_update)
+        dict_col_name <- adt_get_dict("col_name") %>%
+            left_join(dict_update, by = c("old_col_name", "table_code")) %>%
+            mutate(old_col_name = ifelse(is.na(new_col_name), old_col_name, new_col_name)) %>%
+            select(col_name, data_source, table_code, old_col_name)
+    }
     else
-        dict_col_name <- adt_get_dict("col_name", csv_fname = dict_col_name)
+        dict_col_name <- adt_get_dict("col_name")
+    
+    dict_data <- adt_get_dict("data")
+
     
     ## --------- read tables -------------------------------------
     dat_cog   <- a_read_file("COG",    file_names, dict_tbl)
@@ -113,8 +150,23 @@ adt_get_biocard <- function(path = ".",
     dat_race  <- a_read_file("GE",     file_names, dict_tbl)
     dat_lsta  <- a_read_file("LIST_A", file_names, dict_tbl)
     dat_lstb  <- a_read_file("LIST_B", file_names, dict_tbl)
+    print("Loading data finished!")
+    
+    ## --------- check tables ------------------------------------
+    print("Checking data ...")
+    dict_def <- f_check(path, pattern, dict_data, dict_col_name, dict_tbl)[[1]]
+    dict_edit <- f_check(path, pattern, dict_data, dict_col_name, dict_tbl)[[2]]
+    if (dim(dict_edit)[1] != 0) {
+        write.xlsx(dict_edit, "col_name_report.xlsx")
+        stop('Please fill the new_col_name in file "col_name_report.csv". \n
+             The "old_col_name", "description", and "table_name" can be used as references (These values cannot be changed). \n
+             After updating, rerun the function with: \n
+             adt_get_biocard(..., dict_col_update = "col_name_report.xlsx")')
+    }
+        
     
     ## ----------  manipulation ----------------------------------
+    print("Formating data ...")
     dat_cog   <- f_date("COG",  "date_cog",   dat_cog)
     dat_cog   <- f_map("COG",   "subject_id", dat_cog)
     
@@ -131,8 +183,8 @@ adt_get_biocard <- function(path = ".",
                                          "LETTERCODE",
                                          "NIHID"))]
     
-    dat_hippo <- f_date("HIPPO", "date_hippo",       dat_hippo)
-    dat_hippo <- f_map("HIPPO",  "subject_id",       dat_hippo)
+    dat_hippo <- f_date("HIPPO", "date_hippo", dat_hippo)
+    dat_hippo <- f_map("HIPPO",  "subject_id", dat_hippo)
     
     dat_hippo <- f_map("HIPPO",  "intracranial_vol_hippo",
                        dat_hippo, as.numeric)
@@ -176,6 +228,8 @@ adt_get_biocard <- function(path = ".",
               dat_lstb[[id_name]])
     
     ## ------------- prepare bases of dates -----------------------------
+    print("Merging ...")
+    
     dat_se <- a_window(dat    = get(paste("dat_", merge_by, sep = "")),
                        v_date = paste("date_", merge_by, sep = ""),
                        window,
@@ -188,40 +242,25 @@ adt_get_biocard <- function(path = ".",
     dat_se <- a_match(dat_se, dat_hippo, "date_hippo", dup_list)
     dat_se <- a_match(dat_se, dat_amy,   "date_amy",   dup_list)
     dat_se <- a_match(dat_se, dat_ec,    "date_ec",    dup_list)
-    
-    dat_se <- dat_se %>%
+    dat_dx_sub <- dat_dx %>% 
+        select(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID", "VISITNO", "date_dx"))
+    dat_se <- dat_se %>% 
         left_join(dat_demo, by = c("subject_id")) %>%
         left_join(dat_race, by = c("subject_id")) %>%
         select(- c("date", "date_left", "date_right")) %>%
-        left_join(dat_dx %>% select(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID", "VISITNO", "date_dx")), by = c("subject_id", "date_dx"))
+        left_join(dat_dx_sub, by = c("subject_id", "date_dx"))
     
     ## load ApoE-4
     dat_se$apoe <- as.numeric(dat_se[["APOECODE"]] %in% c(3.4, 4.4))
     dat_se$apoe[dat_se["APOECODE"] == 2.4] <- NA
     
-    ## creat dictionary
-    dict_data <- adt_get_dict("data") %>% 
-                     left_join(dict_col_name %>% 
-                                  group_by(col_name) %>% 
-                                  summarise(sub_tbl = 
-                                                    paste(unique(table_code), collapse = ", ")), by = "col_name") %>% 
-                    left_join(dict_col_name %>% 
-                                  group_by(col_name) %>% 
-                                  summarise(ori_name = 
-                                                    paste(unique(old_col_name), collapse = ", ")), by = "col_name") %>% 
-                    mutate(table_code  = ifelse(is.na(sub_tbl),  table_code,  sub_tbl)) %>% 
-                    mutate(information = ifelse(is.na(ori_name), information, paste(ori_name, information, sep = ", "))) %>% 
-                    mutate(location = paste(data_source, table_code, sep = "-"), 
-                               description = paste(information, range_of_values, query, sep = "; ")) %>% 
-                    select(col_name, location, description)
-                    
+    print("Done.")
     
     ## return
     s <- list(data          = dat_se,
               exid          = exid,
-              dict_tbl      = dict_tbl,
-              dict_col_name = dict_col_name, 
-              dict_data     = dict_data)
+              dict_def      = dict_def)
     class(s) <- "biocard"
     return(s)
 }
+

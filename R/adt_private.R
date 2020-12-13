@@ -19,14 +19,15 @@
 #'
 a_read_file <- function(code, file_names, dict_tbl) {
     key_start  <- dict_tbl %>%
-        filter(file_code == code) %>%
-        select(file_name, start_row)
+        filter(table_code == code) %>%
+        select(key_words, start_row)
 
     if (1 != nrow(key_start))
         stop("Number of matching record is not 1.")
 
-    real_name <- file_names[grepl(key_start[1, "file_name"],
+    real_name <- file_names[grepl(key_start[1, "key_words"],
                                   file_names)]
+    print(sprintf("Loading table %s ...", basename(real_name)))
     dat       <- read.xls(xls = real_name,
                           skip = key_start[1, "start_row"] - 1)
 
@@ -60,8 +61,7 @@ a_map_var <- function(data_name = "BIOCARD", table_code0, var_name, dict_col_nam
                             table_code == table_code0 &
                             col_name == var_name)[["old_col_name"]]
     res <- gsub(" ", "\\.", res)
-    res <- gsub("\\(", "\\.", res)
-    res <- gsub("\\)", "\\.", res)
+    res <- gsub('\\s*[].()@!#$%^&"]\\s*', "\\.", res)
     return(res)
 }
 
@@ -153,3 +153,4 @@ a_match <- function(dat_se, dat_marker, m_date, duplist) {
         left_join(dat_marker, by = c("subject_id", m_date)) %>%
         select(-exc_cols)
 }
+
