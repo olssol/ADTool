@@ -86,10 +86,12 @@ adt_get_biocard <- function(path = ".",
             return(res %in% names(eval(as.name(data))))
         }
         table_list <- list.files(path = path, pattern = pattern, full.names = FALSE)
+        dict_tbl_sub <- dict_tbl %>% 
+            select(table_code, inter_name, key_words)
         default_names <- dict_col_name %>%
             filter(data_source == "BIOCARD") %>%
             select(col_name, table_code, old_col_name) %>%
-            left_join(dict_tbl %>% select(table_code, inter_name, key_words), by = "table_code") %>%
+            left_join(dict_tbl_sub, by = "table_code") %>%
             left_join(dict_data, by = "col_name") %>%
             rowwise() %>%
             mutate(table_name = table_list[grep(key_words, table_list)]) %>%
@@ -138,30 +140,20 @@ adt_get_biocard <- function(path = ".",
 
     
     ## --------- read tables -------------------------------------
-    print("Loading data ...")
     dat_cog   <- a_read_file("COG",    file_names, dict_tbl)
-    print("Loading Cognitive data ...")
     dat_dx    <- a_read_file("DIAG",   file_names, dict_tbl)
-    print("Loading Diagnosis data ...")
     dat_csf   <- a_read_file("CSF",    file_names, dict_tbl)
-    print("Loading CSF data ...")
     dat_demo  <- a_read_file("DEMO",   file_names, dict_tbl)
-    print("Loading Demographics data ...")
     dat_hippo <- a_read_file("HIPPO",  file_names, dict_tbl)
-    print("Loading Hippocampus data ...")
     dat_amy   <- a_read_file("AMY",    file_names, dict_tbl)
-    print("Loading Amygdala data ...")
     dat_ec    <- a_read_file("EC",     file_names, dict_tbl)
-    print("Loading Entorhinal_Cortex data ...")
     dat_race  <- a_read_file("GE",     file_names, dict_tbl)
-    print("Loading Genetics data ...")
     dat_lsta  <- a_read_file("LIST_A", file_names, dict_tbl)
-    print("Loading LIST_A data ...")
     dat_lstb  <- a_read_file("LIST_B", file_names, dict_tbl)
-    print("Loading LIST_B data ...")
     print("Loading data finished!")
     
     ## --------- check tables ------------------------------------
+    print("Checking data ...")
     dict_def <- f_check(path, pattern, dict_data, dict_col_name, dict_tbl)[[1]]
     dict_edit <- f_check(path, pattern, dict_data, dict_col_name, dict_tbl)[[2]]
     if (dim(dict_edit)[1] != 0) {
@@ -174,6 +166,7 @@ adt_get_biocard <- function(path = ".",
         
     
     ## ----------  manipulation ----------------------------------
+    print("Formating data ...")
     dat_cog   <- f_date("COG",  "date_cog",   dat_cog)
     dat_cog   <- f_map("COG",   "subject_id", dat_cog)
     
@@ -235,6 +228,8 @@ adt_get_biocard <- function(path = ".",
               dat_lstb[[id_name]])
     
     ## ------------- prepare bases of dates -----------------------------
+    print("Merging ...")
+    
     dat_se <- a_window(dat    = get(paste("dat_", merge_by, sep = "")),
                        v_date = paste("date_", merge_by, sep = ""),
                        window,
@@ -247,27 +242,25 @@ adt_get_biocard <- function(path = ".",
     dat_se <- a_match(dat_se, dat_hippo, "date_hippo", dup_list)
     dat_se <- a_match(dat_se, dat_amy,   "date_amy",   dup_list)
     dat_se <- a_match(dat_se, dat_ec,    "date_ec",    dup_list)
-    
-    dat_se <- dat_se %>%
+    dat_dx_sub <- dat_dx %>% 
+        select(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID", "VISITNO", "date_dx"))
+    dat_se <- dat_se %>% 
         left_join(dat_demo, by = c("subject_id")) %>%
         left_join(dat_race, by = c("subject_id")) %>%
         select(- c("date", "date_left", "date_right")) %>%
-        left_join(dat_dx %>% select(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID", "VISITNO", "date_dx")), by = c("subject_id", "date_dx"))
+        left_join(dat_dx_sub, by = c("subject_id", "date_dx"))
     
     ## load ApoE-4
     dat_se$apoe <- as.numeric(dat_se[["APOECODE"]] %in% c(3.4, 4.4))
     dat_se$apoe[dat_se["APOECODE"] == 2.4] <- NA
     
-
+    print("Done.")
+    
     ## return
     s <- list(data          = dat_se,
               exid          = exid,
-              dict_tbl      = dict_tbl,
-              dict_col_name = dict_col_name, 
-              dict_data     = dict_data, 
               dict_def      = dict_def)
     class(s) <- "biocard"
     return(s)
 }
-
 

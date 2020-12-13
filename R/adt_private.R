@@ -27,6 +27,7 @@ a_read_file <- function(code, file_names, dict_tbl) {
 
     real_name <- file_names[grepl(key_start[1, "key_words"],
                                   file_names)]
+    print(sprintf("Loading table %s ...", basename(real_name)))
     dat       <- read.xls(xls = real_name,
                           skip = key_start[1, "start_row"] - 1)
 
@@ -152,3 +153,4 @@ a_match <- function(dat_se, dat_marker, m_date, duplist) {
         left_join(dat_marker, by = c("subject_id", m_date)) %>%
         select(-exc_cols)
 }
+
