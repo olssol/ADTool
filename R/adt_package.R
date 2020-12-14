@@ -9,7 +9,7 @@
 #' @importFrom parallel detectCores
 #' @importFrom readxl read_xlsx
 #' @importFrom gdata read.xls
-#' @import dplyr 
+#' @import dplyr
 #' @import tidyr
 #' @import xlsx
 #'
@@ -32,10 +32,10 @@
 #' during the preclinical progression of AD.
 #'
 #' @section Data Sources:
-#' 
+#'
 #' There are several major AD data sources exist which allows researchers to
 #' conduct their research.
-#' 
+#'
 #' The BIOCARD study is a longitudinal, observational study initiated in 1995,
 #' and designed to identify biomarkers associated with progression from
 #' cognitively normal (CN) to mild cognitive impairment (MCI) or dementia. It
@@ -75,7 +75,7 @@
 #' of UDS data that included subjects who had at least one MRI evaluation and
 #' had volumetric MRI biomarkers calculated, N= 1317 as of May 2018. This cohort
 #' mostly does not have CSF or PET imaging information, but provides information
-#' on a large population with intensive cognitive and MRI measures. 
+#' on a large population with intensive cognitive and MRI measures.
 #'
 #' @section Objectives:
 #'
@@ -83,73 +83,100 @@
 #' package that define the formats and organization structures of the AD data
 #' across multiple data sources. R Functions are provided for data analysts to
 #' integrate data from multiple data sources and create their analysis dataset.
-#' 
+#'
 #' @references
 #'
 NULL
 
 #' Dictionary of Column Names
-#' 
-#' This dictionary maps the original column names (old_col_name) to the column names of generated analysis dataset. 
-#' In the raw data, the same variable may have different names. This dictionary could be used to uniform variable names.
-#' Also, as some column names in the raw data may be complicated (including space, unit, special symbols, etc.), this dictionary is 
-#' used to simplify the column names.
-#' 
+#'
+#' This dictionary maps the original column names (old_col_name) to the column
+#' names of generated analysis dataset. In the raw data, the same variable may
+#' have different names. This dictionary could be used to uniform variable
+#' names. Also, as some column names in the raw data may be complicated
+#' (including space, unit, special symbols, etc.), this dictionary is used to
+#' simplify the column names.
+#'
 #' @name dict_col_names
 #'
 #' @docType data
 #'
 #' @usage data(dict_col_names)
-#' 
-#' @format A dataframe with the following variables (all variables are in string type):
+#'
+#' @format A dataframe with the following variables (all variables are in string
+#'     type):
+#'
 #' \itemize{
-#'   \item{col_name}{The column names used in the analysis dateset.}
-#'   \item{data_source}{The source of the date, such as "BIOCARD."}
-#'   \item{table_code}{The code of subtable. The options are "COG" (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), 
-#' "DEMO" (Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC" (Entorhinal), "GE" (Genetics), 
-#' "LIST_A" (list of patients not enrolled), "LIST_B" (list of patients impaired). }
-#'   \item{old_col_name}{The column names in the raw data.}
-#' }
+#'
+#' \item{col_name}{The column names used in the analysis
+#'     dateset.}
+#'
+#' \item{data_source}{The source of the date, such as "BIOCARD."}
+#'     \item{table_code}{The code of subtable. The options are "COG"
+#'     (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), "DEMO"
+#'     (Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC"
+#'     (Entorhinal), "GE" (Genetics), "LIST_A" (list of patients not enrolled),
+#'     "LIST_B" (list of patients impaired). }
+#'
+#' \item{old_col_name}{The column
+#'     names in the raw data.} }
 NULL
 
-#' Dictionary of Table Settings 
-#' 
-#' This dictionary includes the basic setting of subtables, such as "file_code", "file_name", "start_row", and "date_format." 
-#' In the raw data, the starting row and date type may vary for different subtables. This dictionary could be used to store these settings.
-#' Also, since the subtables will have different names (maybe with time as a suffix), this dictionary is used to simplify the subtable names.
+#' Dictionary of Source files Features
 #'
-#' @name dict_tbl
+#' This dictionary includes the basic setting of subtables, such as "file_code",
+#' "file_name", "start_row", and "date_format." In the raw data, the starting
+#' row and date type may vary for different subtables. This dictionary could be
+#' used to store these settings. Also, since the subtables will have different
+#' names (maybe with time as a suffix), this dictionary is used to simplify the
+#' subtable names.
+#'
+#' @name dict_src_files
 #'
 #' @format A dataframe with the following variables:
+#'
 #' \itemize{
-#'   \item{file_code}{The code of subtable. The options are "COG" (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), 
-#' "DEMO" (Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC" (Entorhinal), "GE" (Genetics), 
-#' "LIST_A" (list of patients not enrolled), "LIST_B" (list of patients impaired). }
-#'   \item{file_name}{The identifiable keywords in the subtable names.}
-#'   \item{start_row}{Integers indicating the starting row when reading subtables. The default value is 1.}
-#'   \item{date_format}{The format of the date in subtables. The default is "%Y-%m-%d."}
+#'
+#' \item{file_code}{The code of subtable. The options are "COG" (Cognitive),
+#'     "DIAG" (Diagnosis), "CSF" (FINAL_CSF), "DEMO" (Demographics), "HIPPO"
+#'     (Hippocampus), "AMY" (Amygdala), "EC" (Entorhinal), "GE" (Genetics),
+#'     "LIST_A" (list of patients not enrolled), "LIST_B" (list of patients
+#'     impaired). }
+#'
+#'    \item{file_name}{The identifiable keywords in the subtable names.}
+#'
+#'    \item{start_row}{Integers indicating the starting row when reading
+#'     subtables. The default value is 1.}
+#'
+#'    \item{date_format}{The format of the date in subtables. The default is
+#'     "%Y-%m-%d."}
+#'
 #' }
 NULL
 
-#' Dictionary of Data 
-#' 
-#' This dictionary includes all the variables names in the analysis dataset. This dictionary could be used to check 
-#' the location and discription of each variable.
+#' Dictionary of Data
+#'
+#' This dictionary includes all the variables names in the analysis dataset.
+#' This dictionary could be used to check the location and discription of each
+#' variable.
 #'
 #' @name dict_data
 #'
 #' @format A dataframe with the following variables:
 #' \itemize{
-#'   \item{Column_Name}{The name of variables in the analysis dataset.}
-#'   \item{Location}{The location where this variable from.}
-#'   \item{Description}{A description introduces the data type, range, meaning, and mapping (if use one hot encoding).}
-#' }
+#'
+#' \item{Column_Name}{The name of variables in the analysis dataset.}
+#'
+#' \item{Location}{The location where this variable from.}
+#'
+#' \item{Description}{A description introduces the data type, range, meaning,
+#' and mapping (if use one hot encoding).} }
 NULL
 
 #' ADNI Dictionary data
 #'
-#' Dictionary for ADNI files 
-#' 
+#' Dictionary for ADNI files
+#'
 #' @name dict_adni
 #'
 #' @format A dataframe with the following variables:
@@ -157,4 +184,30 @@ NULL
 #'   \item{file_label}{}
 #'   \item{file_name}{}
 #' }
+NULL
+
+
+#' Parameters
+#'
+#' List of function parameters in the \code{ADTool} package
+#'
+#' @name parameters
+#'
+#' @param src_type A string indicating the source of data. Options include
+#'     "BIOCARD", "NACC" and "ADNI"
+#'
+#' @param src_col_name A string indicating a column name in the source data
+#'     file.
+#'
+#' @param adt_tbl_code A string indicating the code of table, which can be mapped
+#'     to the source data files and is used for internal data manipulation.
+#'
+#'
+#' @param dict A string indicating the name of the dictionary. The available
+#'     options are: "tbl": the dictionary for table structure, "col_name": the
+#'     dictionary for mapping column names, "adni": the dictionary for ADNI
+#'     data.
+
+#'
+#'
 NULL
