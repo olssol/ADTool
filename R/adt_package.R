@@ -97,7 +97,7 @@ NULL
 #' (including space, unit, special symbols, etc.), this dictionary is used to
 #' simplify the column names.
 #'
-#' @name dict_col_names
+#' @name dict_src_tables
 #'
 #' @docType data
 #'

@@ -6,12 +6,16 @@
 \format{
 A dataframe with the following variables:
 \itemize{
-  \item{Column_Name}{The name of variables in the analysis dataset.}
-  \item{Location}{The location where this variable from.}
-  \item{Description}{A description introduces the data type, range, meaning, and mapping (if use one hot encoding).}
-}
+
+\item{Column_Name}{The name of variables in the analysis dataset.}
+
+\item{Location}{The location where this variable from.}
+
+\item{Description}{A description introduces the data type, range, meaning,
+and mapping (if use one hot encoding).} }
 }
 \description{
-This dictionary includes all the variables names in the analysis dataset. This dictionary could be used to check 
-the location and discription of each variable.
+This dictionary includes all the variables names in the analysis dataset.
+This dictionary could be used to check the location and discription of each
+variable.
 }
