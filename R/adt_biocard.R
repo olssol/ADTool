@@ -36,10 +36,10 @@
 #'     is "*.xls" (should work for both .xls and .xlsx). This pattern is used to
 #'     read all table names from the path.
 #'
-#' @param dict_src_files Dictionary file for source file features. See
+#' @param src_files Dictionary file for source file features. See
 #'     \link{\code{dict_src_files}} for more details.
 #'
-#' @param dict_src_tables Dictionary file for source table features. See
+#' @param src_tables Dictionary file for source table features. See
 #'     \link{\code{dict_src_tables}} for more details.
 #'
 #' @return
@@ -77,18 +77,18 @@ adt_get_biocard <- function(path = ".",
                                          "entorhinal"),
                             window  = 730, window_overlap = FALSE,
                             pattern = "*.xls",
-                            dict_src_files  = NULL,
-                            dict_src_tables = NULL) {
+                            src_files  = NULL,
+                            src_tables = NULL) {
 
 
     ## convert date
     f_date <- function(code, date_name, dta) {
         mvar <- a_map_var("BIOCARD", code, date_name, dict_src_tables)
         dfmt <- filter(dict_src_files,
-                       table_code == code)[["date_format"]]
+                       adt_table_code == code)[["src_date_format"]]
 
         dta[date_name] <- as.Date(dta[, mvar], dfmt)
-        dta            <- dta[, -grep(mvar, names(dta))]
+        dta            <- dta %>% select(-mvar)
         dta
     }
 
@@ -96,8 +96,10 @@ adt_get_biocard <- function(path = ".",
     f_map <- function(code, var, dta, fc = NULL) {
         mvar     <- a_map_var("BIOCARD", code, var, dict_src_tables)
         dta[var] <- dta[mvar]
-        dta      <- dta[, -grep(mvar, names(dta))]
-
+        if (!mvar==var) {
+            dta  <- dta %>% select(-mvar)
+        }
+        
         if (!is.null(fc))
             dta[var] <- lapply(dta[var], fc)
 
@@ -109,8 +111,15 @@ adt_get_biocard <- function(path = ".",
 
     ## source data set of dates for combining data
     merge_by <- match.arg(merge_by)
-
-    ## XINYU: CONVERT merge_by to COG EC DX CSF etc...
+    
+    ## switch ##
+    merge_by <- tolower(switch(merge_by,
+                       diagnosis = "DIAG", 
+                       cognitive = "COG", 
+                       csf = "CSF", 
+                       hippocampus = "HIPPO", 
+                       amydata = "AMY", 
+                       entorhinal = "EC"))
 
     dup_list <- c("JHUANONID", "LETTERCODE",
                   "NIHID", "VISITNO", "Diagnosis.at.last.scan",
@@ -123,8 +132,8 @@ adt_get_biocard <- function(path = ".",
     file_names <- list.files(path = path, pattern = pattern, full.names = TRUE)
 
     ## dictionary of src files
-    dict_src_files  <- adt_get_dict("src_files", csv_fname  = dict_src_files)
-    dict_src_tables <- adt_get_dict("src_tables", csv_fname = dict_src_tables)
+    dict_src_files  <- adt_get_dict("src_files", csv_fname  = src_files)
+    dict_src_tables <- adt_get_dict("src_tables", csv_fname = src_tables)
     dict_data       <- adt_get_dict("ana_data")
 
 
@@ -133,15 +142,25 @@ adt_get_biocard <- function(path = ".",
                   "HIPPO", "AMY", "EC", "GE")
 
     chk_all <- NULL
+    #def_all <- NULL
+    # table_list <- list.files(path = path, pattern = pattern, full.names = FALSE)
     for (i in vec_tbls) {
         cur_dat  <- a_read_file(i, file_names, dict_src_files)
-        cur_chk  <- a_check_src(cur_dat, i, dict_src_tables)
+        cur_chk  <- a_check_src(i, dict_src_tables, cur_dat)
+        
+        #cur_def <- cur_chk[[1]]
+        #cur_err <- cur_chk[[2]]
 
         assign(paste("dat_", tolower(i), sep =""), cur_dat)
         chk_all <- rbind(chk_all, cur_chk)
+        #chk_all <- rbind(chk_all, cur_err)
+        #def_all <- rbind(def_all, cur_def)
     }
 
-    if (!is.null(chk_all)) {
+    if (dim(chk_all)[1]>0) {
+        print("err_list:")
+        err_list <- chk_all
+        print(chk_all)
         err_msg <- a_err_msg("biocard_load_error")
         stop(err_msg)
     }
@@ -156,18 +175,18 @@ adt_get_biocard <- function(path = ".",
     dat_cog   <- f_date("COG",  "date_cog",   dat_cog)
     dat_cog   <- f_map("COG",   "subject_id", dat_cog)
 
-    dat_dx    <- f_date("DIAG", "date_dx",    dat_dx)
-    dat_dx    <- f_map("DIAG",  "subject_id", dat_dx)
-
+    dat_diag  <- f_date("DIAG", "date_diag",    dat_diag)
+    dat_diag  <- f_map("DIAG",  "subject_id", dat_diag)
+    
     dat_csf   <- f_date("CSF",  "date_csf",   dat_csf)
     dat_csf   <- f_map("CSF",   "abeta",      dat_csf)
     dat_csf   <- f_map("CSF",   "subject_id", dat_csf)
 
-    dat_demo   <- f_map("DEMO", "subject_id", dat_demo)
-    dat_demo <- dat_demo[, -which(names(dat_demo)
-                                  %in% c("JHUANONID",
+    dat_demo  <- f_map("DEMO", "subject_id", dat_demo)
+    dat_demo  <- dat_demo[, -which(names(dat_demo)
+                                  %in% tolower(c("JHUANONID",
                                          "LETTERCODE",
-                                         "NIHID"))]
+                                         "NIHID")))]
 
     dat_hippo <- f_date("HIPPO", "date_hippo", dat_hippo)
     dat_hippo <- f_map("HIPPO",  "subject_id", dat_hippo)
@@ -202,11 +221,11 @@ adt_get_biocard <- function(path = ".",
     dat_ec$bi_ec_thick <- (dat_ec$l_ec_thick + dat_ec$r_ec_thick) / 2
 
     ## race
-    dat_race <- dat_race[, -which(names(dat_race)
-                                  %in% c("JHUANONID",
+    dat_ge <- dat_ge[, -which(names(dat_ge)
+                                  %in% tolower(c("JHUANONID",
                                          "LETTERCODE",
-                                         "NIHID"))]
-    dat_race <- f_map("GE", "subject_id", dat_race)
+                                         "NIHID")))]
+    dat_ge <- f_map("GE", "subject_id", dat_ge)
 
     ## exclude subjects from list A and list B
     id_name <- a_map_var("BIOCARD", "LIST_A", "subject_id", dict_src_tables)
@@ -221,33 +240,40 @@ adt_get_biocard <- function(path = ".",
                        window_overlap)
 
     ## ------------- combine data --------------------------------------
-    dat_se <- a_match(dat_se, dat_dx,    "date_dx",    dup_list)
+    dat_se <- a_match(dat_se, dat_diag,    "date_diag",    dup_list)
     dat_se <- a_match(dat_se, dat_cog,   "date_cog",   dup_list)
     dat_se <- a_match(dat_se, dat_csf,   "date_csf",   dup_list)
     dat_se <- a_match(dat_se, dat_hippo, "date_hippo", dup_list)
     dat_se <- a_match(dat_se, dat_amy,   "date_amy",   dup_list)
     dat_se <- a_match(dat_se, dat_ec,    "date_ec",    dup_list)
 
-    dat_dx_sub <- dat_dx %>%
-        select(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID",
-                 "VISITNO", "date_dx"))
+    dat_diag_sub <- dat_diag %>%
+        select(tolower(c("subject_id", "JHUANONID", "LETTERCODE", "NIHID",
+                 "VISITNO", "date_diag")))
 
     dat_se <- dat_se %>%
         left_join(dat_demo, by = c("subject_id")) %>%
-        left_join(dat_race, by = c("subject_id")) %>%
+        left_join(dat_ge, by = c("subject_id")) %>%
         select(- c("date", "date_left", "date_right")) %>%
-        left_join(dat_dx_sub, by = c("subject_id", "date_dx"))
+        left_join(dat_diag_sub, by = c("subject_id", "date_diag"))
 
     ## load ApoE-4
-    dat_se$apoe <- as.numeric(dat_se[["APOECODE"]] %in% c(3.4, 4.4))
-    dat_se$apoe[dat_se["APOECODE"] == 2.4] <- NA
+    dat_se$apoe <- as.numeric(dat_se[["apoecode"]] %in% c(3.4, 4.4))
+    dat_se$apoe[dat_se["apoecode"] == 2.4] <- NA
+    
+    ## drop duplicates
+    dat_se <- dat_se %>%
+        select(!(ends_with(".x")|ends_with(".y")))
+    
+    ## add exid
+    dat_se <- dat_se %>%
+        rowwise() %>%
+        mutate(exclude = subject_id %in% exid)
 
     print("Done.")
 
     ## return
-    s <- list(data          = dat_se,
-              exid          = exid,
-              dict_def      = dict_def)
-    class(s) <- "biocard"
+    s <- dat_se
+    # class(s) <- "biocard"
     return(s)
 }

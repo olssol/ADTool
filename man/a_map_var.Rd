@@ -2,31 +2,24 @@
 % Please edit documentation in R/adt_private.R
 \name{a_map_var}
 \alias{a_map_var}
-\title{Map Variables}
+\title{Get the column name in the source data file.}
 \usage{
-a_map_var(data_name = "BIOCARD", table_code0, var_name, dict_col_name)
+a_map_var(
+  src_type = c("BIOCARD", "NACC", "ADNI"),
+  tbl_code,
+  col_name,
+  dict_src_tables = NULL
+)
 }
 \arguments{
-\item{data_name}{A string indicating the source of data. Default "BIOCARD."}
-
-\item{table_code0}{A string indicating the code of table where the variable (column name) from.}
-
-\item{var_name}{A string indicating the name of the variable (column name).}
-
-\item{dict_col_name}{A path of data file (.csv) of the variables dictionary. The default dictionary is appended in the package. 
-Since the column names in tables may vary, it could be modified by using a costomized column names dictionary. The format can refer to the 
-appended dictionary.}
+\item{src_type}{A string indicating the source of data. Options include
+"BIOCARD", "NACC" and "ADNI"}
 }
 \value{
-The real name in the original data
+The real name in the source data file
 }
 \description{
-Get the original column names. Since the column names in tables may vary, it could be modified by using a costomized column names dictionary. The format can refer to the 
-appended dictionary.
-}
-\examples{
-\dontrun{
-a_map_var("BIOCARD", "CSF", "date", dict_col_name)
-}
-
+Since the column names in tables may vary, it could be modified by using a
+costomized column names dictionary. The format can refer to the appended
+dictionary.
 }

@@ -2,23 +2,29 @@
 % Please edit documentation in R/adt_toolkits.R
 \name{adt_get_dict}
 \alias{adt_get_dict}
-\title{Get dictionary}
+\title{Get dictionary dataset}
 \usage{
-adt_get_dict(dict = c("tbl", "col_name", "adni", "data"), csv_fname = NULL)
+adt_get_dict(
+  dict = c("src_files", "src_tables", "ana_data", "adni"),
+  csv_fname = NULL
+)
 }
 \arguments{
-\item{dict}{A string indicating the name of the dictionary. 
-The available options are: "tbl": the dictionary for table structure, 
-"col_name": the dictionary for mapping column names, "adni": the dictionary for ADNI data.}
+\item{dict}{A string indicating the name of the dictionary. The available
+options are: "tbl": the dictionary for table structure, "col_name": the
+dictionary for mapping column names, "adni": the dictionary for ADNI
+data.}
 
-\item{csv_fname}{The path of external dictionary. If changes of default dictionaries needed, then the costomized dictionary could be added here. 
-However, the format of the costomized dictionary should follow the default one.}
+\item{csv_fname}{The path of external dictionary. If changes of default
+dictionaries needed, then the costomized dictionary could be added here.
+However, the format of the costomized dictionary should follow the
+default one.}
 }
 \value{
-The dictionary dateset.
+The dictionary dataset.
 }
 \description{
-Get the needed dictionary data for leading subtables and mapping variables.
+Get the dictionary dataset as a dataframe or save as a csv file.
 }
 \examples{
 \dontrun{

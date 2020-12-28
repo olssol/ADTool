@@ -88,15 +88,16 @@ adt_get_dict <- function(dict = c("src_files", "src_tables",
     rst_dict <- get(paste("dict_", dict, sep = ""))
 
     if (!is.null(csv_fname)) {
-        csv_dict <- read.csv(file = csv_fname, row.names = 1)
+        csv_dict <- read.xls(xls = csv_fname)
+    }
+    else{
+        csv_dict <- NULL
     }
 
-    key_cols <- switch(dict,
-                       src_files  = c("src_type", "adt_table_code"),
-                       src_tables = c("src_type", "adt_col_name",
-                                      "adt_table_code"),
-                       NULL)
-
-    rst_dict <- a_update_dict(rst_dict, csv_dict, key_cols = key_cols)
+    rst_dict <- a_update_dict(rst_dict, csv_dict)
+    if (dict=="src_tables") {
+        rst_dict <- rst_dict %>%
+            drop_na()
+        }
     rst_dict
 }

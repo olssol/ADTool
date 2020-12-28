@@ -2,69 +2,84 @@
 % Please edit documentation in R/adt_biocard.R
 \name{adt_get_biocard}
 \alias{adt_get_biocard}
-\title{Get BIOCARD Data}
+\title{Import BIOCARD Data}
 \usage{
 adt_get_biocard(
   path = ".",
-  merge_by = c("dx", "cog", "csf", "hippo", "amy", "ec"),
+  merge_by = c("diagnosis", "cognitive", "csf", "hippocampus", "amydata", "entorhinal"),
   window = 730,
   window_overlap = FALSE,
   pattern = "*.xls",
-  dict_tbl = NULL,
-  dict_col_update = NULL
+  src_files = NULL,
+  src_tables = NULL
 )
 }
 \arguments{
-\item{path}{The location where the biocard data stored. All the subtables need to be in the same location.}
+\item{path}{Directory of the BIOCARD data files. Default value is the working
+directory,}
 
-\item{merge_by}{A character string indicating the baseline time for merging. If select "dx" (diagnosis), 
-all the biomarkers will be selected and merged according to the diagnosis date.
-Possible values for the baseline time are "dx" (diagnosis), "cog" (cognitive), "csf", 
-"hippo" (hippocampus), "amy" (amygdala), "ec" (entorhinal).}
+\item{merge_by}{A character string indicating the source baseline time for
+aligning the BIOCARD data when merging multiple files. Options include
+"diagnosis", "cognitive", "csf", "hippocampus", "amydata" and
+"entorhinal".}
 
-\item{window}{An integer (unit of days) indicating the maximum acceptable length of time interval between baseline time and biomarker test time.
-The default is set to be 730 days. For most data, the time windows are calculated from the baseline time 
-(left window = the midpoint between current and the previous time point; right window = the midpoint between current and the next time point).
-If the time windows are longer than the maximum acceptable length, then force to select biomarker within the maximum window length we set. 
-For the first and last baseline time, since there is no "previous" or "next" time point availiable, use the maximum acceptable window length instead.}
+\item{window}{An integer (unit of days) indicating the maximum acceptable gap
+time for merging a biomarker test to base data. Default is 730 days. For
+most data, the time windows are calculated from the baseline time (left
+window = the midpoint between current and the previous time point; right
+window = the midpoint between current and the next time point). If the
+time windows are longer than the maximum acceptable length, then force to
+select biomarker within the maximum window length we set. For the first
+and last baseline time, since there is no "previous" or "next" time point
+availiable, use the maximum acceptable window length instead.}
 
-\item{window_overlap}{A logical value indicating the time window setting. Default "False." If true, all time windows will set from 1/2 "window" days before
-the baseline time to the 1/2 "window" days after baseline. In this case, the time windows may overlap, which means some biomarkers may be 
-merged into multiple baseline data. If false, the windows will be calculated from the blaseline times. The left window is set to be the midpoint 
-between the current and the previous time point. The right window is set to be the midpoint between the current and the next time point. 
-For the first and last baseline time, since there is no "previous" or "next" time point available, 
-use the maximum acceptable window length (set by the parameter "window") instead.}
+\item{window_overlap}{A logical value indicating the time window setting.
+Default "False." If true, all time windows will set from 1/2 "window"
+days before the baseline time to the 1/2 "window" days after baseline. In
+this case, the time windows may overlap, which means some biomarkers may
+be merged into multiple baseline data. If false, the windows will be
+calculated from the blaseline times. The left window is set to be the
+midpoint between the current and the previous time point. The right
+window is set to be the midpoint between the current and the next time
+point. For the first and last baseline time, since there is no "previous"
+or "next" time point available, use the maximum acceptable window length
+(set by the parameter "window") instead.}
 
-\item{pattern}{A string indicating the pattern of all the data files. Default is "*.xls" (should work for both .xls and .xlsx). 
-This pattern is used to read all table names from the path.}
+\item{pattern}{A string indicating the pattern of all the data files. Default
+is "*.xls" (should work for both .xls and .xlsx). This pattern is used to
+read all table names from the path.}
 
-\item{dict_tbl}{A path of data file (.csv) of the parameters dictionary. The default dictionary is appended in the package. 
-Since the parameters in tables may vary, it could be modified by using a costomized parameter dictionary. The format can refer to the 
-appended dictionary.}
+\item{src_files}{Dictionary file for source file features. See
+\link{\code{dict_src_files}} for more details.}
 
-\item{dict_col_name}{A path of data file (.csv) of the column names dictionary. The default dictionary is appended in the package. 
-Since the column names in tables may vary, it could be modified by using a costomized variable dictionary. The format can refer to the 
-appended dictionary.}
+\item{src_tables}{Dictionary file for source table features. See
+\link{\code{dict_src_tables}} for more details.}
 }
 \value{
 The returned value is a list with the following items:
+
 \itemize{
-   \item data: The data includes patients' ids, baseline times, corresponding biomarkers, and biomarker test times.
-   \item exid: The subject_ids of patients that are either not enrolled or impaired at baseline. 
+
+    \item data: The data includes patients' ids, baseline times,
+    corresponding biomarkers, and biomarker test times.
+
+    \item exid: The subject_ids of patients that are either not enrolled or
+    impaired at baseline.
 }
 }
 \description{
-Load all BIOCARD data from a folder, generate the corresponding analysis
-dataset with column names consistent with other data sources
+Import BIOCARD data from source files and generate the analysis dataset.
 }
 \examples{
 \dontrun{
 # with default unoverlaped window
 dt_biocard <- get_biocard(path, merge_by = "dx")
 # with costomized window
-dt_biocard <- get_biocard(path, merge_by = "dx", window = 365, window_overlap = TRUE)
+dt_biocard <- get_biocard(path, merge_by = "dx", window = 365,
+                          window_overlap = TRUE)
 # with costomized dictionary
-dt_biocard <- get_biocard(path, merge_by = "dx", dict_tbl = "\BIOCARD\DATA\dict_tbl.csv")
+dt_biocard <- get_biocard(path, merge_by = "dx",
+                          dict_tbl = "\BIOCARD\DATA\dict_tbl.csv")
 }
 
 }

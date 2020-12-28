@@ -4,22 +4,27 @@
 \alias{a_read_file}
 \title{Read data}
 \usage{
-a_read_file(code, file_names, dict_tbl)
+a_read_file(code, file_names, dict_src_files)
 }
 \arguments{
-\item{code}{Code of subtables ("Cognitive" as "COG"). The options are "COG" (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), 
-"DEMO" (Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC" (Entorhinal), "GE" (Genetics), "LIST_A" (list of patients not enrolled), 
+\item{code}{Code of subtables ("Cognitive" as "COG"). The options are "COG"
+(Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), "DEMO"
+(Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC"
+(Entorhinal), "GE" (Genetics), "LIST_A" (list of patients not enrolled),
 "LIST_B" (list of patients impaired).}
 
-\item{file_names}{List the names of all subtables in the path (all tables should from the same path).}
+\item{file_names}{List the names of all subtables in the path (all tables
+should from the same path).}
 
-\item{dict_tbl}{A path of data file (.csv) of the parameters dictionary. The default dictionary is appended in the package. 
-Since the parameters in tables may vary, it could be modified by using a costomized parameter dictionary. The format can refer to the 
-appended dictionary.}
+\item{dict_tbl}{A path of data file (.csv) of the parameters dictionary. The
+default dictionary is appended in the package. Since the parameters in
+tables may vary, it could be modified by using a costomized parameter
+dictionary. The format can refer to the appended dictionary.}
 }
 \value{
 A dataset
 }
 \description{
-Read specific subtable. The default start column is 1. But could be costomized by editing the "dict_tbl" dictionary.
+Read specific subtable. The default start column is 1. But could be
+costomized by editing the "dict_tbl" dictionary.
 }

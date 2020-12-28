@@ -3,12 +3,12 @@
 #'
 a_gsub <- function(vec_name, lower_case = TRUE) {
     rst <- sapply(vec_name,
-                  function(x) gsub("[^[:alnum:]]", "", x))
+                  function(x) gsub("[^[:alnum:]\\_]", "", x), USE.NAMES = F)
 
     if (lower_case)
         rst <- tolower(rst)
 
-    rst
+    return(rst)
 }
 
 #' Get the column name in the source data file.
@@ -27,16 +27,16 @@ a_map_var <- function(src_type = c("BIOCARD", "NACC", "ADNI"),
                       dict_src_tables = NULL) {
 
     if (is.null(dict_src_tables))
-        dict_src_tables <- apt_get_dict(dict = "src_tables")
+        dict_src_tables <- adt_get_dict(dict = "src_tables")
 
-    res <- filter(dict_col_name,
+    res <- filter(dict_src_tables,
                   src_type       == src_type &
-                  adt_table_code == table_code &
+                  adt_table_code == tbl_code &
                   adt_col_name   == col_name)
 
 
     rst <- a_gsub(res[["src_col_name"]])
-    rst
+    return(rst)
 }
 
 
@@ -65,9 +65,9 @@ a_map_var <- function(src_type = c("BIOCARD", "NACC", "ADNI"),
 #' a_read_file("COG", file_names, dict_tbl)
 #' }
 #'
-a_read_file <- function(code, file_names, dict_src_tables) {
+a_read_file <- function(code, file_names, dict_src_files) {
 
-    key_start  <- dict_src_tables %>%
+    key_start  <- dict_src_files %>%
         filter(adt_table_code == code) %>%
         select(src_key_words, src_start_row)
 
@@ -86,7 +86,7 @@ a_read_file <- function(code, file_names, dict_src_tables) {
 
     print(sprintf("Loading source file %s ...", basename(real_name)))
     dat <- read.xls(xls = real_name,
-                    skip = key_start[1, "start_row"] - 1)
+                    skip = key_start[1, "src_start_row"] - 1)
 
     colnames(dat) <- a_gsub(colnames(dat))
 
@@ -181,78 +181,58 @@ a_match <- function(dat_se, dat_marker, m_date, duplist) {
 }
 
 #' Update Dictionary
+#' 
+#' Merged by the index, update all columns with "src"
 #'
 #'
-a_update_dict <- function(dat_dict, dat_csv, key_cols) {
+a_update_dict <- function(rst_dict, csv_dict) {
 
-    if (is.null(dat_csv) |
-        is.null(key_cols))
-        return(dat_dict)
-
-    colnames(dat_csv) <- tolower(dat_csv)
-    if (!identical(sort(colnames(dat_dict)),
-                   sort(colnames(dat_csv)))) {
+    if (is.null(csv_dict)) {
+        return(rst_dict)
+    }
+    
+    if (!identical(sort(colnames(rst_dict)),
+                   sort(colnames(csv_dict)))) {
         stop("The column names in the CSV file are not compatible with
               the dictionary to be updated")
     }
-
-
-    ##   XINYU PLEASE ADD:
-    ##   loop through dat_csv
-    ##   for each row in dat_csv match its key_cols with dat_dict
-    ##   once matched, update all the non-key-columns
-    ##   similar like what you did here
-
-    ## if (!is.null(dict_col_update)) {
-    ##     dict_update <- read_xlsx(dict_col_update)
-    ##     dict_src_tables <- adt_get_dict("col_name") %>%
-    ##         left_join(dict_update, by = c("old_col_name", "table_code")) %>%
-    ##         mutate(old_col_name = ifelse(is.na(new_col_name), old_col_name, new_col_name)) %>%
-    ##         select(col_name, data_source, table_code, old_col_name)
-    ## }
-    ## else
+    
+    src_csv_dict <- csv_dict %>%
+        select(index, starts_with("src"))
+    
+    m_dict <- rst_dict %>%
+        left_join(src_csv_dict, by = "index", suffix = c(".rp", "")) %>%
+        select(!ends_with(".rp"))
+    
+    return(m_dict) 
 
 }
 
 
 ## check data
-a_check_src <- function(dict_data, dict_src_tables, dict_src_files) {
+a_check_src <- function(table_code, dict_src_tables, cur_dat) {
     isin <- function(var_name, data){
-        res <- gsub(" ", "\\.", var_name)
-        res <- gsub('\\s*[].()@!#$%^&"]\\s*', "\\.", res)
-        return(res %in% names(eval(as.name(data))))
+        res <- a_gsub(var_name)
+        return(res %in% names(data))
     }
-    dict_src_files_sub <- dict_src_files %>%
-        select(table_code, inter_name, key_words)
     default_names <- dict_src_tables %>%
-        filter(data_source == "BIOCARD") %>%
-        select(col_name, table_code, old_col_name) %>%
-        left_join(dict_src_files_sub, by = "table_code") %>%
-        left_join(dict_data, by = "col_name") %>%
-        rowwise() %>%
-        mutate(table_name = table_list[grep(key_words, table_list)]) %>%
-        mutate(nedt = isin(old_col_name, inter_name))
-    edit_names <- default_names %>%
-        filter(nedt == "FALSE") %>%
-        unite(description, info, values, range, sep = "; ") %>%
-        select(old_col_name, description, table_code, table_name) %>%
-        mutate(new_col_name = NA) %>%
-        arrange(table_name)
-    res <- list(default_names, edit_names)
-    return(res)
+        filter(adt_table_code==table_code) %>%
+        select(adt_col_name, src_type, adt_table_code, src_col_name) %>%
+        mutate(nedt = isin(src_col_name, cur_dat)) %>%
+        filter(nedt == "FALSE")
 }
-
 
 ## Error messages
 a_err_msg <- function(msg) {
-    biocard_load_error <- 'Please fill the new_col_name in file
-                           "col_name_report.csv". \n
-                           The "old_col_name", "description", and "table_name"
-                           can be used as references (These
-                           values cannot be changed). \n
+    biocard_load_error <- 'Some suggested variables not found (shown as above). \n
+                           If you still want to include some/all of them 
+                           (notice SUBJECT_ID and DATE must filled for merging),
+                           please edit the "src_col_name" in "dict_src_tables" file. \n
+                           To get the file, use adt_get_dict("src_tables"), \n
+                           please save it as the Excle form. \n
+                           
                            After updating, rerun the function with: \n
-                           adt_get_biocard(..., dict_col_update
-                            = "col_name_report.xlsx")'
+                           adt_get_biocard(..., src_tables = "The updated Excel file")'
 
     get(msg)
 }
