@@ -24,7 +24,7 @@ A dataframe with the following variables (all variables are in string
     names in the raw data.} }
 }
 \usage{
-data(dict_col_names)
+data(dict_src_tables)
 }
 \description{
 This dictionary maps the original column names (old_col_name) to the column

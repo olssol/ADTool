@@ -101,7 +101,7 @@ NULL
 #'
 #' @docType data
 #'
-#' @usage data(dict_col_names)
+#' @usage data(dict_src_tables)
 #'
 #' @format A dataframe with the following variables (all variables are in string
 #'     type):
