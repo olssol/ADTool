@@ -14,6 +14,14 @@ a_map_var(
 \arguments{
 \item{src_type}{A string indicating the source of data. Options include
 "BIOCARD", "NACC" and "ADNI"}
+
+\item{col_name}{A string indicating a column name in the source data file.}
+
+\item{dict_src_tables}{A dictionary file for the parameters. The
+default dictionary is appended in the package. Since the parameters in
+tables may vary, it could be modified by using a costomized parameter
+dictionary. The format can refer to the appended dictionary.
+See \code{\link{dict_src_tables}} for more details.}
 }
 \value{
 The real name in the source data file

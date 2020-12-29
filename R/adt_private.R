@@ -1,6 +1,21 @@
 #' Remove all special characters
 #'
-#'
+#' Remove all special charachers in a string except "_", 
+#' and change all characters to the lower cases is set lower_case = TRUE.
+#' 
+#' @inheritParams parameters
+#'     
+#' @return 
+#' 
+#' Returned a string with no special characters except "_"
+#' 
+#' @examples  
+#' \dontrun{
+#' vec <- "ad*&_ae20"
+#' a_gsub(vec, lower_case = TRUE)
+#' } 
+#' 
+#' 
 a_gsub <- function(vec_name, lower_case = TRUE) {
     rst <- sapply(vec_name,
                   function(x) gsub("[^[:alnum:]\\_]", "", x), USE.NAMES = F)
@@ -44,31 +59,20 @@ a_map_var <- function(src_type = c("BIOCARD", "NACC", "ADNI"),
 #'
 #' Read specific subtable. The default start column is 1. But could be
 #' costomized by editing the "dict_tbl" dictionary.
-#'
-#' @param code Code of subtables ("Cognitive" as "COG"). The options are "COG"
-#'     (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), "DEMO"
-#'     (Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC"
-#'     (Entorhinal), "GE" (Genetics), "LIST_A" (list of patients not enrolled),
-#'     "LIST_B" (list of patients impaired).
-#' @param file_names List the names of all subtables in the path (all tables
-#'     should from the same path).
-#'
-#' @param dict_tbl A path of data file (.csv) of the parameters dictionary. The
-#'     default dictionary is appended in the package. Since the parameters in
-#'     tables may vary, it could be modified by using a costomized parameter
-#'     dictionary. The format can refer to the appended dictionary.
+#' 
+#' @inheritParams parameters
 #'
 #' @return A dataset
 #'
-#' @example
+#' @examples
 #' \dontrun{
-#' a_read_file("COG", file_names, dict_tbl)
+#' a_read_file("COG", file_names, dict_src_files)
 #' }
 #'
-a_read_file <- function(code, file_names, dict_src_files) {
+a_read_file <- function(table_code, file_names, dict_src_files) {
 
     key_start  <- dict_src_files %>%
-        filter(adt_table_code == code) %>%
+        filter(adt_table_code == table_code) %>%
         select(src_key_words, src_start_row)
 
     if (1 != nrow(key_start))
@@ -105,11 +109,14 @@ a_read_file <- function(code, file_names, dict_src_files) {
 #' baseline time, since there is no "previous" or "next" time point availiable,
 #' use the maximum acceptable window length instead.
 #'
-#' @param dat The baseline time dataset.
-#' @param v_date A string indicating the date name of the baseline time.
-#' @param v_id A string indicating the id name of baseline dateset. Default is
-#'     "subject_id" (may varied if using customized column names dictionary).
+#' @inheritParams parameters
 #'
+#' @return A dataset with time window for biomarkers
+#' 
+#' @examples 
+#' \dontrun{
+#' a_window(dat, v_date, window, window_overlap, v_id = "subject_id")
+#' }
 #'
 a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
     g_win <- function(d1, d2, left) {
@@ -136,7 +143,6 @@ a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
         rowwise() %>%
         mutate(date_left  = g_win(date, date_left,  -1),
                date_right = g_win(date, date_right, 1))
-
 }
 
 #' Map Biomarkers Data to The Baseline Visits
@@ -146,12 +152,9 @@ a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
 #' satisfies assignment criteria, mark as missing. If two marker satisfy
 #' assignment criteria, take first one.
 #'
-#' @param dat_se     A dataset that will be merged.
-#' @param dat_marker A data set including new biomarker that will be merged.
-#' @param m_date     A string indicating the name of measure date in dat_marker.
-#' @param duplist    A list of duplicated columns names.
+#' @inheritParams parameters
 #'
-#' @return The matched (larger) dateset including newly added biomarker data.
+#' @return The matched (larger) dataset including newly added biomarker data.
 #'
 #'
 #' @examples
@@ -182,9 +185,13 @@ a_match <- function(dat_se, dat_marker, m_date, duplist) {
 
 #' Update Dictionary
 #' 
-#' Merged by the index, update all columns with "src"
+#' Update the old dictionary with a new one.
+#' Input both the old and new dictionary, 
+#' merged them by the index, update all columns with "src"
 #'
-#'
+#' @inheritParams parameters
+#' 
+#' @return The updated dataset.
 a_update_dict <- function(rst_dict, csv_dict) {
 
     if (is.null(csv_dict)) {
@@ -203,13 +210,24 @@ a_update_dict <- function(rst_dict, csv_dict) {
     m_dict <- rst_dict %>%
         left_join(src_csv_dict, by = "index", suffix = c(".rp", "")) %>%
         select(!ends_with(".rp"))
-    
     return(m_dict) 
-
 }
 
 
-## check data
+## Check data
+#' 
+#' Check the source data whether include all the variable needed
+#'
+#' @inheritParams parameters
+#'
+#' @return A dataset includes missing variables information.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' a_check_src("DIAG", dict_src_tables, dat_diag)
+#' }
+#' 
 a_check_src <- function(table_code, dict_src_tables, cur_dat) {
     isin <- function(var_name, data){
         res <- a_gsub(var_name)
@@ -220,6 +238,7 @@ a_check_src <- function(table_code, dict_src_tables, cur_dat) {
         select(adt_col_name, src_type, adt_table_code, src_col_name) %>%
         mutate(nedt = isin(src_col_name, cur_dat)) %>%
         filter(nedt == "FALSE")
+    return(default_names)
 }
 
 ## Error messages

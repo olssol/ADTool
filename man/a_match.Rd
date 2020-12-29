@@ -16,7 +16,7 @@ a_match(dat_se, dat_marker, m_date, duplist)
 \item{duplist}{A list of duplicated columns names.}
 }
 \value{
-The matched (larger) dateset including newly added biomarker data.
+The matched (larger) dataset including newly added biomarker data.
 }
 \description{
 Map all marker data to baseline visits. For each visit, assign the

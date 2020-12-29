@@ -4,18 +4,120 @@
 \alias{parameters}
 \title{Parameters}
 \arguments{
+\item{path}{Directory of the BIOCARD data files. Default value is the working
+directory,}
+
+\item{merge_by}{A character string indicating the source baseline time for
+aligning the BIOCARD data when merging multiple files. Options include
+"diagnosis", "cognitive", "csf", "hippocampus", "amydata" and
+"entorhinal".}
+
+\item{window}{An integer (unit of days) indicating the maximum acceptable gap
+time for merging a biomarker test to base data. Default is 730 days. For
+most data, the time windows are calculated from the baseline time (left
+window = the midpoint between current and the previous time point; right
+window = the midpoint between current and the next time point). If the
+time windows are longer than the maximum acceptable length, then force to
+select biomarker within the maximum window length we set. For the first
+and last baseline time, since there is no "previous" or "next" time point
+availiable, use the maximum acceptable window length instead.}
+
+\item{window_overlap}{A logical value indicating the time window setting.
+Default "False." If true, all time windows will set from 1/2 "window"
+days before the baseline time to the 1/2 "window" days after baseline. In
+this case, the time windows may overlap, which means some biomarkers may
+be merged into multiple baseline data. If false, the windows will be
+calculated from the blaseline times. The left window is set to be the
+midpoint between the current and the previous time point. The right
+window is set to be the midpoint between the current and the next time
+point. For the first and last baseline time, since there is no "previous"
+or "next" time point available, use the maximum acceptable window length
+(set by the parameter "window") instead.}
+
+\item{pattern}{A string indicating the pattern of all the data files. Default
+is "*.xls" (should work for both .xls and .xlsx). This pattern is used to
+read all table names from the path.}
+
+\item{src_files}{Updated dictionary file for source file features. See
+\code{\link{dict_src_files}} for more details.}
+
+\item{src_tables}{Updated dictionary file for source table features. See
+\code{\link{dict_src_tables}} for more details.}
+
+\item{vec_name}{A character string indicating the vector needed to be removed special characters.}
+
+\item{lower_case}{A logical value indicating the lower case setting.
+Default "False." If true, all characters will to convert to lower cases.}
+
 \item{src_type}{A string indicating the source of data. Options include
 "BIOCARD", "NACC" and "ADNI"}
 
-\item{src_col_name}{A string indicating a column name in the source data
-file.}
+\item{col_name}{A string indicating a column name in the source data file.}
 
-\item{adt_tbl_code}{A string indicating the code of table, which can be mapped
-to the source data files and is used for internal data manipulation.}
+\item{dict_src_tables}{A dictionary file for the parameters. The
+default dictionary is appended in the package. Since the parameters in
+tables may vary, it could be modified by using a costomized parameter
+dictionary. The format can refer to the appended dictionary.
+See \code{\link{dict_src_tables}} for more details.}
+
+\item{table_code}{Code of subtables ("Cognitive" as "COG"), which can be mapped
+to the source data files and is used for internal data manipulation. 
+The options are "COG" (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), "DEMO"
+(Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC"
+(Entorhinal), "GE" (Genetics), "LIST_A" (list of patients not enrolled),
+"LIST_B" (list of patients impaired).}
+
+\item{file_names}{List the names of all subtables in the path (all tables
+should from the same path).}
+
+\item{dict_src_files}{A path of data file (.csv) of the parameters dictionary. The
+default dictionary is appended in the package. Since the parameters in
+tables may vary, it could be modified by using a costomized parameter
+dictionary. The format can refer to the appended dictionary.
+See \code{\link{dict_src_files}} for more details.}
+
+\item{dat}{The baseline time dataset.}
+
+\item{v_date}{A string indicating the date name of the baseline time.}
+
+\item{v_id}{A string indicating the id name of baseline dateset. Default is
+"subject_id" (may varied if using customized column names dictionary).}
+
+\item{dat_se}{A dataset that will be merged.}
+
+\item{dat_marker}{A data set including new biomarker that will be merged.}
+
+\item{m_date}{A string indicating the name of measure date in dat_marker.}
+
+\item{duplist}{A list of duplicated columns names.}
+
+\item{rst_dict}{A dataset that waiting to be updated.}
+
+\item{csv_dict}{A dataset with updated information.}
+
+\item{cur_dat}{A dataset indicating current loaded subtable.}
+
+\item{data}{A dataset. Possible choices are "dict_tbl": the dictionary for
+the structure of tables, "dict_cil_name": the dictionary maps the
+original column names (old_col_name) to the column names of generated
+analysis dataset, "dict_data": This dictionary includes all the variables
+names in the analysis dataset. This dictionary could be used to check the
+location and description of each variable.}
+
+\item{str}{String to search. Default value is NULL. If NULL, this function is
+used to check the entire dictionary. If input a string (the variable name
+of the analysis dataset), this function is used to check the location and
+description of the variable.}
+
+\item{csv_fname}{A string indicating the CSV filename to be saved (saved to
+the default location). Default is NULL. The saved file is in .scv format.
+If changes of default dictionaries needed, then the costomized dictionary
+could be added here. However, the format of the costomized dictionary 
+should follow the default one.}
 
 \item{dict}{A string indicating the name of the dictionary. The available
-options are: "tbl": the dictionary for table structure, "col_name": the
-dictionary for mapping column names, "adni": the dictionary for ADNI
+options are: "src_files": the dictionary for table structure, "src_tables": the
+dictionary for mapping column names, "ana_data": the dictionary for query, "adni": the dictionary for ADNI
 data.}
 }
 \description{

@@ -11,14 +11,15 @@ adt_get_dict(
 }
 \arguments{
 \item{dict}{A string indicating the name of the dictionary. The available
-options are: "tbl": the dictionary for table structure, "col_name": the
-dictionary for mapping column names, "adni": the dictionary for ADNI
+options are: "src_files": the dictionary for table structure, "src_tables": the
+dictionary for mapping column names, "ana_data": the dictionary for query, "adni": the dictionary for ADNI
 data.}
 
-\item{csv_fname}{The path of external dictionary. If changes of default
-dictionaries needed, then the costomized dictionary could be added here.
-However, the format of the costomized dictionary should follow the
-default one.}
+\item{csv_fname}{A string indicating the CSV filename to be saved (saved to
+the default location). Default is NULL. The saved file is in .scv format.
+If changes of default dictionaries needed, then the costomized dictionary
+could be added here. However, the format of the costomized dictionary 
+should follow the default one.}
 }
 \value{
 The dictionary dataset.

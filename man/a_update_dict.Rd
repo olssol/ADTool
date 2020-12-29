@@ -6,6 +6,16 @@
 \usage{
 a_update_dict(rst_dict, csv_dict)
 }
+\arguments{
+\item{rst_dict}{A dataset that waiting to be updated.}
+
+\item{csv_dict}{A dataset with updated information.}
+}
+\value{
+The updated dataset.
+}
 \description{
-Merged by the index, update all columns with "src"
+Update the old dictionary with a new one.
+Input both the old and new dictionary, 
+merged them by the index, update all columns with "src"
 }

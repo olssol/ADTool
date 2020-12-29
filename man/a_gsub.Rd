@@ -6,6 +6,25 @@
 \usage{
 a_gsub(vec_name, lower_case = TRUE)
 }
+\arguments{
+\item{vec_name}{A character string indicating the vector needed to be removed special characters.}
+
+\item{lower_case}{A logical value indicating the lower case setting.
+Default "False." If true, all characters will to convert to lower cases.}
+}
+\value{
+Returned a string with no special characters except "_"
+}
 \description{
-Remove all special characters
+Remove all special charachers in a string except "_", 
+and change all characters to the lower cases is set lower_case = TRUE.
+}
+\examples{
+ 
+\dontrun{
+vec <- "ad*&_ae20"
+a_gsub(vec, lower_case = TRUE)
+} 
+
+
 }
