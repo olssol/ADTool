@@ -244,12 +244,10 @@ a_check_src <- function(table_code, dict_src_tables, cur_dat) {
 ## Error messages
 a_err_msg <- function(msg) {
     biocard_load_error <- 'Some suggested variables not found (shown as above). \n
-                           If you still want to include some/all of them 
-                           (notice SUBJECT_ID and DATE must filled for merging),
-                           please edit the "src_col_name" in "dict_src_tables" file. \n
+                           (notice SUBJECT_ID and DATE must filled for merging)\n
+                           Please edit the "src_col_name" in "dict_src_tables" file. \n
                            To get the file, use adt_get_dict("src_tables"), \n
                            please save it as the Excle form. \n
-                           
                            After updating, rerun the function with: \n
                            adt_get_biocard(..., src_tables = "The updated Excel file")'
 

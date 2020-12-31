@@ -110,13 +110,20 @@ adt_get_biocard <- function(path = ".",
         #chk_all <- rbind(chk_all, cur_err)
         #def_all <- rbind(def_all, cur_def)
     }
-
+    
     if (dim(chk_all)[1]>0) {
-        print("err_list:")
+        message("Some variable(s) not found. 
+              Missing of ID and date variables may cause problem when merging data.
+              Missing of other variables may cause problem when querying. 
+              (The analysis dateset can still be generated if no ID and date variables are missing.)
+              Missing information is shown below:")
         err_list <- chk_all
         print(chk_all)
-        err_msg <- a_err_msg("biocard_load_error")
-        stop(err_msg)
+        skip = readline(prompt = "Do you want to keep generating the analysis dataset? (yes/no) ")
+        if (skip == "no") {
+            err_msg <- a_err_msg("biocard_load_error")
+            stop(err_msg)
+        }
     }
 
     dat_lsta  <- a_read_file("LIST_A", file_names, dict_src_files)
