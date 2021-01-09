@@ -1,6 +1,6 @@
 Package: ADTool
-Title: Alzheimer Disease Data Tools 
-Version: 1.0
+Title: Alzheimer Disease Data Tools
+Version: 1.1
 Authors: Xinyu Guo [aut, cre],
     Zheyu Wang [aut, cre],
     Chenguang Wang [aut, cre]
@@ -22,10 +22,10 @@ Description: Sharp increases in Alzheimer disease (AD) cases, deaths, and
 License: GPL (>=3)
 Depends:
     R (>= 3.5.0)
-Imports: 
+Imports:
     parallel (>= 3.2)
-LinkingTo: 
-RcppModules: 
+LinkingTo:
+RcppModules:
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes

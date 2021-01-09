@@ -64,8 +64,10 @@ adt_tk_query <- function(data, str = NULL, csv_fname = NULL) {
 #'
 #' @export
 #'
-adt_get_dict <- function(dict = c("src_files", "src_tables",
-                                  "ana_data", "adni"),
+adt_get_dict <- function(dict = c("src_files",
+                                  "src_tables",
+                                  "ana_data",
+                                  "src_adni"),
                          csv_fname = NULL) {
 
     dict     <- match.arg(dict)
@@ -73,15 +75,31 @@ adt_get_dict <- function(dict = c("src_files", "src_tables",
 
     if (!is.null(csv_fname)) {
         csv_dict <- read.xls(xls = csv_fname)
-    }
-    else{
+    } else{
         csv_dict <- NULL
     }
 
     rst_dict <- a_update_dict(rst_dict, csv_dict)
-    if (dict=="src_tables") {
+
+    if ("src_tables" == dict) {
         rst_dict <- rst_dict %>%
             drop_na()
-        }
+    }
+
     rst_dict
+}
+
+#' Convert APOE Values
+#'
+#'
+#'
+#'
+#' @export
+#'
+adt_apoe <- function(apoecode,
+                     par_apoe = list(levels = c(3.4, 4.4, 2.4),
+                                     labels = c(1, 2, NA))) {
+    factor(apoecode,
+           levels = par_apoe$levels,
+           labels = par_apoe$labels)
 }
