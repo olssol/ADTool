@@ -5,26 +5,10 @@
 \alias{dict_src_tables}
 \title{Dictionary of Column Names}
 \format{
-A dataframe with the following variables (all variables are in string
-    type):
 
-\itemize{
-
-\item{col_name}{The column names used in the analysis
-    dateset.}
-
-\item{data_source}{The source of the date, such as "BIOCARD."}
-    \item{table_code}{The code of subtable. The options are "COG"
-    (Cognitive), "DIAG" (Diagnosis), "CSF" (FINAL_CSF), "DEMO"
-    (Demographics), "HIPPO" (Hippocampus), "AMY" (Amygdala), "EC"
-    (Entorhinal), "GE" (Genetics), "LIST_A" (list of patients not enrolled),
-    "LIST_B" (list of patients impaired). }
-
-\item{old_col_name}{The column
-    names in the raw data.} }
 }
 \usage{
-data(dict_col_names)
+data(dict_src_tables)
 }
 \description{
 This dictionary maps the original column names (old_col_name) to the column

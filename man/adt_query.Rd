@@ -2,10 +2,8 @@
 % Please edit documentation in R/adt_class_methods.R
 \name{adt_query}
 \alias{adt_query}
-\title{Query Function}
+\title{Search description from dictionary}
 \usage{
-adt_query(biocard, var, opt = c("general", "variable", "sources"))
-
 adt_query(biocard, var, opt = c("general", "variable", "sources"))
 }
 \arguments{
@@ -17,11 +15,12 @@ adt_query(biocard, var, opt = c("general", "variable", "sources"))
 }
 \value{
 
-
-
 }
 \description{
-Query Function
-
 Search description from dictionary
+}
+\examples{
+\dontrun{
+adt_query(biovard, "EDUC", "general")
+}
 }

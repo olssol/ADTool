@@ -49,23 +49,15 @@ or "next" time point available, use the maximum acceptable window length
 is "*.xls" (should work for both .xls and .xlsx). This pattern is used to
 read all table names from the path.}
 
-\item{src_files}{Dictionary file for source file features. See
-\link{\code{dict_src_files}} for more details.}
+\item{src_files}{Updated dictionary file for source file features. See
+\code{\link{dict_src_files}} for more details.}
 
-\item{src_tables}{Dictionary file for source table features. See
-\link{\code{dict_src_tables}} for more details.}
+\item{src_tables}{Updated dictionary file for source table features. See
+\code{\link{dict_src_tables}} for more details.}
 }
 \value{
-The returned value is a list with the following items:
-
-\itemize{
-
-    \item data: The data includes patients' ids, baseline times,
-    corresponding biomarkers, and biomarker test times.
-
-    \item exid: The subject_ids of patients that are either not enrolled or
-    impaired at baseline.
-}
+Returned the analysis dataset with:
+patients' ids, baseline times, corresponding biomarkers, biomarker test times, etc.
 }
 \description{
 Import BIOCARD data from source files and generate the analysis dataset.
@@ -73,13 +65,13 @@ Import BIOCARD data from source files and generate the analysis dataset.
 \examples{
 \dontrun{
 # with default unoverlaped window
-dt_biocard <- get_biocard(path, merge_by = "dx")
+dt_biocard <- get_biocard(path, merge_by = "diagnosis")
 # with costomized window
-dt_biocard <- get_biocard(path, merge_by = "dx", window = 365,
+dt_biocard <- get_biocard(path, merge_by = "diagnosis", window = 365,
                           window_overlap = TRUE)
-# with costomized dictionary
+# with updated dictionary
 dt_biocard <- get_biocard(path, merge_by = "dx",
-                          dict_tbl = "\BIOCARD\DATA\dict_tbl.csv")
+                          src_tables = "dict_src_tables.xlsx")
 }
 
 }

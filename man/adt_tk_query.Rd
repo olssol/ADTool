@@ -20,7 +20,10 @@ of the analysis dataset), this function is used to check the location and
 description of the variable.}
 
 \item{csv_fname}{A string indicating the CSV filename to be saved (saved to
-the default location). Default is NULL. The saved file is in .scv format.}
+the default location). Default is NULL. The saved file is in .scv format.
+If changes of default dictionaries needed, then the costomized dictionary
+could be added here. However, the format of the costomized dictionary 
+should follow the default one.}
 }
 \value{
 The search result (either an entire dataset or the location and

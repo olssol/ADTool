@@ -1,15 +1,3 @@
-#' Query Function
-#'
-#' @param biocard the object
-#'
-#' @return
-#' @export
-#'
-#' @examples
-adt_query <- function(biocard) {
-    UseMethod("biocard")
-}
-
 #' Search description from dictionary
 #'
 #' @param biocard the object
@@ -20,6 +8,9 @@ adt_query <- function(biocard) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' adt_query(biovard, "EDUC", "general")
+#' }
 adt_query <- function(biocard, var, opt = c("general", "variable", "sources")) {
     opt <- match.arg(opt)
     dict_data <- biocard$dict_data

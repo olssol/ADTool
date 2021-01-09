@@ -1,70 +1,24 @@
 #' Import BIOCARD Data
 #'
 #' Import BIOCARD data from source files and generate the analysis dataset.
-#'
-#' @param path Directory of the BIOCARD data files. Default value is the working
-#'     directory,
-#'
-#' @param merge_by A character string indicating the source baseline time for
-#'     aligning the BIOCARD data when merging multiple files. Options include
-#'     "diagnosis", "cognitive", "csf", "hippocampus", "amydata" and
-#'     "entorhinal".
-#'
-#' @param window An integer (unit of days) indicating the maximum acceptable gap
-#'     time for merging a biomarker test to base data. Default is 730 days. For
-#'     most data, the time windows are calculated from the baseline time (left
-#'     window = the midpoint between current and the previous time point; right
-#'     window = the midpoint between current and the next time point). If the
-#'     time windows are longer than the maximum acceptable length, then force to
-#'     select biomarker within the maximum window length we set. For the first
-#'     and last baseline time, since there is no "previous" or "next" time point
-#'     availiable, use the maximum acceptable window length instead.
-#'
-#' @param window_overlap A logical value indicating the time window setting.
-#'     Default "False." If true, all time windows will set from 1/2 "window"
-#'     days before the baseline time to the 1/2 "window" days after baseline. In
-#'     this case, the time windows may overlap, which means some biomarkers may
-#'     be merged into multiple baseline data. If false, the windows will be
-#'     calculated from the blaseline times. The left window is set to be the
-#'     midpoint between the current and the previous time point. The right
-#'     window is set to be the midpoint between the current and the next time
-#'     point. For the first and last baseline time, since there is no "previous"
-#'     or "next" time point available, use the maximum acceptable window length
-#'     (set by the parameter "window") instead.
-#'
-#' @param pattern A string indicating the pattern of all the data files. Default
-#'     is "*.xls" (should work for both .xls and .xlsx). This pattern is used to
-#'     read all table names from the path.
-#'
-#' @param src_files Dictionary file for source file features. See
-#'     \link{\code{dict_src_files}} for more details.
-#'
-#' @param src_tables Dictionary file for source table features. See
-#'     \link{\code{dict_src_tables}} for more details.
+#' 
+#' @inheritParams parameters
 #'
 #' @return
 #'
-#' The returned value is a list with the following items:
-#'
-#' \itemize{
-#'
-#'     \item data: The data includes patients' ids, baseline times,
-#'     corresponding biomarkers, and biomarker test times.
-#'
-#'     \item exid: The subject_ids of patients that are either not enrolled or
-#'     impaired at baseline.
-#' }
+#' Returned the analysis dataset with:
+#' patients' ids, baseline times, corresponding biomarkers, biomarker test times, etc.
 #'
 #' @examples
 #' \dontrun{
 #' # with default unoverlaped window
-#' dt_biocard <- get_biocard(path, merge_by = "dx")
+#' dt_biocard <- get_biocard(path, merge_by = "diagnosis")
 #' # with costomized window
-#' dt_biocard <- get_biocard(path, merge_by = "dx", window = 365,
+#' dt_biocard <- get_biocard(path, merge_by = "diagnosis", window = 365,
 #'                           window_overlap = TRUE)
-#' # with costomized dictionary
+#' # with updated dictionary
 #' dt_biocard <- get_biocard(path, merge_by = "dx",
-#'                           dict_tbl = "\BIOCARD\DATA\dict_tbl.csv")
+#'                           src_tables = "dict_src_tables.xlsx")
 #' }
 #'
 #' @export
@@ -156,13 +110,20 @@ adt_get_biocard <- function(path = ".",
         #chk_all <- rbind(chk_all, cur_err)
         #def_all <- rbind(def_all, cur_def)
     }
-
+    
     if (dim(chk_all)[1]>0) {
-        print("err_list:")
+        message("Some variable(s) not found. 
+              Missing of ID and date variables may cause problem when merging data.
+              Missing of other variables may cause problem when querying. 
+              (The analysis dateset can still be generated if no ID and date variables are missing.)
+              Missing information is shown below:")
         err_list <- chk_all
         print(chk_all)
-        err_msg <- a_err_msg("biocard_load_error")
-        stop(err_msg)
+        skip = readline(prompt = "Do you want to keep generating the analysis dataset? (yes/no) ")
+        if (skip == "no") {
+            err_msg <- a_err_msg("biocard_load_error")
+            stop(err_msg)
+        }
     }
 
     dat_lsta  <- a_read_file("LIST_A", file_names, dict_src_files)
