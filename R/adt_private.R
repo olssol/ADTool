@@ -1,21 +1,21 @@
 #' Remove all special characters
 #'
-#' Remove all special charachers in a string except "_", 
+#' Remove all special charachers in a string except "_",
 #' and change all characters to the lower cases is set lower_case = TRUE.
-#' 
+#'
 #' @inheritParams parameters
-#'     
-#' @return 
-#' 
+#'
+#' @return
+#'
 #' Returned a string with no special characters except "_"
-#' 
-#' @examples  
+#'
+#' @examples
 #' \dontrun{
 #' vec <- "ad*&_ae20"
 #' a_gsub(vec, lower_case = TRUE)
-#' } 
-#' 
-#' 
+#' }
+#'
+#'
 a_gsub <- function(vec_name, lower_case = TRUE) {
     rst <- sapply(vec_name,
                   function(x) gsub("[^[:alnum:]\\_]", "", x), USE.NAMES = F)
@@ -24,6 +24,15 @@ a_gsub <- function(vec_name, lower_case = TRUE) {
         rst <- tolower(rst)
 
     return(rst)
+}
+
+#' Print out message
+#'
+#'
+#'
+a_print <- function(msg, verbose = TRUE, ...) {
+    if (verbose)
+        print(msg, ...)
 }
 
 #' Get the column name in the source data file.
@@ -59,7 +68,7 @@ a_map_var <- function(src_type = c("BIOCARD", "NACC", "ADNI"),
 #'
 #' Read specific subtable. The default start column is 1. But could be
 #' costomized by editing the "dict_tbl" dictionary.
-#' 
+#'
 #' @inheritParams parameters
 #'
 #' @return A dataset
@@ -69,7 +78,8 @@ a_map_var <- function(src_type = c("BIOCARD", "NACC", "ADNI"),
 #' a_read_file("COG", file_names, dict_src_files)
 #' }
 #'
-a_read_file <- function(table_code, file_names, dict_src_files) {
+a_read_file <- function(table_code, file_names, dict_src_files,
+                        verbose = TRUE) {
 
     key_start  <- dict_src_files %>%
         filter(adt_table_code == table_code) %>%
@@ -78,8 +88,8 @@ a_read_file <- function(table_code, file_names, dict_src_files) {
     if (1 != nrow(key_start))
         stop("Number of matching record is not 1.")
 
-    finx      <- grep(key_start[1, "src_key_words"],
-                      file_names)
+    finx <- grep(key_start[1, "src_key_words"],
+                 file_names)
 
     if (1 != length(finx))
         stop(paste("There is not an unique file name that
@@ -88,13 +98,13 @@ a_read_file <- function(table_code, file_names, dict_src_files) {
 
     real_name <- file_names[finx]
 
-    print(sprintf("Loading source file %s ...", basename(real_name)))
+    a_print(sprintf("Loading source file %s ...", basename(real_name)),
+            verbose)
+
     dat <- read.xls(xls = real_name,
                     skip = key_start[1, "src_start_row"] - 1)
 
     colnames(dat) <- a_gsub(colnames(dat))
-
-
     return(dat)
 }
 
@@ -112,8 +122,8 @@ a_read_file <- function(table_code, file_names, dict_src_files) {
 #' @inheritParams parameters
 #'
 #' @return A dataset with time window for biomarkers
-#' 
-#' @examples 
+#'
+#' @examples
 #' \dontrun{
 #' a_window(dat, v_date, window, window_overlap, v_id = "subject_id")
 #' }
@@ -184,38 +194,44 @@ a_match <- function(dat_se, dat_marker, m_date, duplist) {
 }
 
 #' Update Dictionary
-#' 
+#'
 #' Update the old dictionary with a new one.
-#' Input both the old and new dictionary, 
+#' Input both the old and new dictionary,
 #' merged them by the index, update all columns with "src"
 #'
 #' @inheritParams parameters
-#' 
+#'
 #' @return The updated dataset.
 a_update_dict <- function(rst_dict, csv_dict) {
 
     if (is.null(csv_dict)) {
         return(rst_dict)
     }
-    
+
     if (!identical(sort(colnames(rst_dict)),
                    sort(colnames(csv_dict)))) {
-        stop("The column names in the CSV file are not compatible with
-              the dictionary to be updated")
+        stop("The column names in the CSV file are not compatible
+              with the dictionary to be updated.")
     }
-    
+
+    if (! all(csv_dict$index %in% rst_dict$index)) {
+        stop("Invalid index in the CSV file.")
+    }
+
     src_csv_dict <- csv_dict %>%
         select(index, starts_with("src"))
-    
+
+    ## only keep the columns with names starting with src in the csv file
     m_dict <- rst_dict %>%
         left_join(src_csv_dict, by = "index", suffix = c(".rp", "")) %>%
         select(!ends_with(".rp"))
-    return(m_dict) 
+
+    return(m_dict)
 }
 
 
 ## Check data
-#' 
+#'
 #' Check the source data whether include all the variable needed
 #'
 #' @inheritParams parameters
@@ -227,22 +243,29 @@ a_update_dict <- function(rst_dict, csv_dict) {
 #' \dontrun{
 #' a_check_src("DIAG", dict_src_tables, dat_diag)
 #' }
-#' 
-a_check_src <- function(table_code, dict_src_tables, cur_dat) {
-    isin <- function(var_name, data){
+#'
+a_check_src <- function(table_code, cur_dat, dict_src_tables) {
+
+    f_isin <- function(var_name) {
         res <- a_gsub(var_name)
-        return(res %in% names(data))
+        return(res %in% cur_names)
     }
+
+    cur_names <- colnames(cur_dat)
+
     default_names <- dict_src_tables %>%
-        filter(adt_table_code==table_code) %>%
+        filter(adt_table_code == table_code) %>%
         select(adt_col_name, src_type, adt_table_code, src_col_name) %>%
-        mutate(nedt = isin(src_col_name, cur_dat)) %>%
+        mutate(nedt = f_isin(src_col_name)) %>%
         filter(nedt == "FALSE")
+
+    ## XINYU: PLEASE CHECK IF nedt = "FALSE" or FALSE
     return(default_names)
 }
 
 ## Error messages
-a_err_msg <- function(msg) {
+a_err_msg <- function(msg_id) {
+
     biocard_load_error <- 'Some suggested variables not found (shown as above). \n
                            (notice SUBJECT_ID and DATE must filled for merging)\n
                            Please edit the "src_col_name" in "dict_src_tables" file. \n
@@ -251,5 +274,7 @@ a_err_msg <- function(msg) {
                            After updating, rerun the function with: \n
                            adt_get_biocard(..., src_tables = "The updated Excel file")'
 
-    get(msg)
+
+    biocard
+    get(msg_id)
 }

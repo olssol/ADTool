@@ -5,12 +5,14 @@
 #' @param opt Searching options
 #'
 #' @return
-#' @export
 #'
 #' @examples
 #' \dontrun{
 #' adt_query(biovard, "EDUC", "general")
 #' }
+#'
+#' @export
+#'
 adt_query <- function(biocard, var, opt = c("general", "variable", "sources")) {
     opt <- match.arg(opt)
     dict_data <- biocard$dict_data
