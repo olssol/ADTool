@@ -1,0 +1,147 @@
+---
+title: "merge"
+author: "Xinyu Guo"
+date: "1/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(tabulizer)
+library(pdftools)
+```
+
+## extract dict data from pdf
+```{r}
+out <- extract_tables("/Users/xinyuguo/Desktop/uds3-rdd.pdf")
+final <- data.frame("X3"="", "X4"="")
+err <- c()
+for (i in 1:length(out)) {
+  if (dim(out[[i]])[2]>3) {
+    tem <- as.data.frame(out[i])[-1, 3:4]
+    final <- rbind(final, tem, make.row.names = FALSE)
+  }
+  else {
+    err <- c(err, i)
+    print(i)
+  }
+}
+names(final) <- c("var", "des")
+mer_dict <- final %>% 
+  filter(!des=="") 
+for (i in dim(mer_dict)[1]:1) {
+  if (mer_dict[i, 1]=="") {
+    mer_dict[i-1, 2] <- paste(mer_dict[i-1, 2], mer_dict[i, 2])
+  }
+}
+mer_dict <- mer_dict %>%
+  filter(!var=="")
+mer_dict$var <- a_gsub(mer_dict$var)
+```
+
+## font function
+```{r}
+a_gsub <- function(vec_name, lower_case = TRUE) {
+    rst <- sapply(vec_name,
+                  function(x) gsub("[^[:alnum:]\\_]", "", x), USE.NAMES = F)
+
+    if (lower_case)
+        rst <- tolower(rst)
+
+    return(rst)
+}
+```
+
+## include/exclude table
+```{r}
+n_nacc <- names(nacc)
+n_biocard <- names(biocard)
+n_col <- a_gsub(union(n_biocard, n_nacc))
+n_mer <- as.data.frame(n_col)
+n_mer <- n_mer %>% 
+  mutate(biocard = n_col %in% a_gsub(n_biocard)) %>%
+  mutate(nacc    = n_col %in% a_gsub(n_nacc)) %>%
+  arrange(biocard, nacc)  %>% 
+  rename(var =  n_col) %>%
+  left_join(mer_dict, by = "var")
+```
+
+```{r}
+name_li
+vars_li <- head_li
+# delete date, id, visitno, letter
+for (i in 1:length(head_li)) {
+  if (any(grep("id", head_li[[i]]))) {
+    head_li[[i]] = head_li[[i]][-grep("id", head_li[[i]])]
+  }
+  if (any(grep("date", head_li[[i]]))) {
+    head_li[[i]] = head_li[[i]][-grep("date", head_li[[i]])]
+  }
+  if (any(grep("visitno", head_li[[i]]))) {
+    head_li[[i]] = head_li[[i]][-grep("visitno", head_li[[i]])]
+  }
+  if (any(grep("name", head_li[[i]]))) {
+    head_li[[i]] = head_li[[i]][-grep("name", head_li[[i]])]
+  }
+  if (any(grep("letter", head_li[[i]]))) {
+    head_li[[i]] = head_li[[i]][-grep("letter", head_li[[i]])]
+  }
+}
+
+new_li <- head_li
+
+all_inc <- list()
+for (i in 1:dim(adni_map)[1]) {
+  idx <- c()
+  for (j in 1:8) {
+    for (name in new_li[[j]]) {
+      if (grepl(name, adni_map[i, 4], ignore.case = TRUE)) {
+        idx <- c(idx, j)
+        break
+      }
+    }
+  }
+  all_inc[i] <- list(idx)
+}
+
+adni_info <- adni_map
+adni_info$type <- NA
+
+for (i in 1:dim(adni_info)[1]) {
+  if (!is.null(all_inc[[i]])) {
+    lab <- ""
+    for (j in 1:length(all_inc[[i]])) {
+      lab <- paste(lab, name_li[all_inc[[i]][j]], " ")
+      adni_info$type[i] <- lab
+    }
+  }
+}
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+ppl <- "recode(x$var, =)"
+dict <- ra %>%
+  filter(grepl("','", range)) %>%
+  rowwise() %>%
+  mutate(cmd = gsub("var", adt_col_name, ppl)) %>%
+  mutate(cmd = gsub("=", range, cmd))
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

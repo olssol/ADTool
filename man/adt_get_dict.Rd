@@ -5,7 +5,7 @@
 \title{Get dictionary dataset}
 \usage{
 adt_get_dict(
-  dict = c("src_files", "src_tables", "ana_data", "adni"),
+  dict = c("src_files", "src_tables", "ana_data", "src_adni"),
   csv_fname = NULL
 )
 }

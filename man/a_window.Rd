@@ -17,16 +17,16 @@ most data, the time windows are calculated from the baseline time (left
 window = the midpoint between current and the previous time point; right
 window = the midpoint between current and the next time point). If the
 time windows are longer than the maximum acceptable length, then force to
-select biomarker within the maximum window length we set. For the first
+select biomarkers within the maximum window length we set. For the first
 and last baseline time, since there is no "previous" or "next" time point
-availiable, use the maximum acceptable window length instead.}
+available, use the maximum acceptable window length instead.}
 
 \item{window_overlap}{A logical value indicating the time window setting.
 Default "False." If true, all time windows will set from 1/2 "window"
 days before the baseline time to the 1/2 "window" days after baseline. In
 this case, the time windows may overlap, which means some biomarkers may
 be merged into multiple baseline data. If false, the windows will be
-calculated from the blaseline times. The left window is set to be the
+calculated from the baseline times. The left window is set to be the
 midpoint between the current and the previous time point. The right
 window is set to be the midpoint between the current and the next time
 point. For the first and last baseline time, since there is no "previous"

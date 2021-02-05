@@ -257,24 +257,39 @@ a_check_src <- function(table_code, cur_dat, dict_src_tables) {
         filter(adt_table_code == table_code) %>%
         select(adt_col_name, src_type, adt_table_code, src_col_name) %>%
         mutate(nedt = f_isin(src_col_name)) %>%
-        filter(nedt == "FALSE")
-
-    ## XINYU: PLEASE CHECK IF nedt = "FALSE" or FALSE
+        filter(nedt == FALSE)
     return(default_names)
 }
 
 ## Error messages
 a_err_msg <- function(msg_id) {
 
-    biocard_load_error <- 'Some suggested variables not found (shown as above). \n
-                           (notice SUBJECT_ID and DATE must filled for merging)\n
-                           Please edit the "src_col_name" in "dict_src_tables" file. \n
+    biocard_load_error <- 'Some variable(s) not found.\n
+                           Missing of ID and date variables may cause problem when merging data.\n
+                           Missing of other variables may cause problem when querying. \n
+                           To edit the variable(s), please edit the "src_col_name" in "dict_src_tables" file. \n
                            To get the file, use adt_get_dict("src_tables"), \n
-                           please save it as the Excle form. \n
+                           please save it as the Excel form. \n
                            After updating, rerun the function with: \n
                            adt_get_biocard(..., src_tables = "The updated Excel file")'
 
-
-    biocard
     get(msg_id)
+}
+
+#' Map categorical variables
+#'
+#' @return A dictionary with categorical code
+#' @export
+#'
+#' @examples
+a_dict_map <- function() {
+    ppl <- "x$var = recode(x$var, map)"
+    dict_data <- adt_get_dict("ana_data")
+    dict_cmd <- dict_data %>%
+        filter(grepl("','", range)) %>%
+        rowwise() %>%
+        mutate(cmd = gsub("var", adt_col_name, ppl)) %>%
+        mutate(cmd = gsub("map", range, cmd)) %>% 
+        select(adt_col_name, description, values, cmd)
+    return(dict_cmd)
 }

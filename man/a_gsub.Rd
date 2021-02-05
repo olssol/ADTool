@@ -16,15 +16,14 @@ Default "False." If true, all characters will to convert to lower cases.}
 Returned a string with no special characters except "_"
 }
 \description{
-Remove all special charachers in a string except "_", 
+Remove all special charachers in a string except "_",
 and change all characters to the lower cases is set lower_case = TRUE.
 }
 \examples{
- 
 \dontrun{
 vec <- "ad*&_ae20"
 a_gsub(vec, lower_case = TRUE)
-} 
+}
 
 
 }

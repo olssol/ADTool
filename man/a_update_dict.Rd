@@ -16,6 +16,6 @@ The updated dataset.
 }
 \description{
 Update the old dictionary with a new one.
-Input both the old and new dictionary, 
+Input both the old and new dictionary,
 merged them by the index, update all columns with "src"
 }

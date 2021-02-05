@@ -9,6 +9,7 @@
 #' @importFrom parallel detectCores
 #' @importFrom readxl read_xlsx
 #' @importFrom gdata read.xls
+#' @importFrom plyr revalue
 #' @import dplyr
 #' @import tidyr
 #' @import xlsx
@@ -215,16 +216,16 @@ NULL
 #'     window = the midpoint between current and the previous time point; right
 #'     window = the midpoint between current and the next time point). If the
 #'     time windows are longer than the maximum acceptable length, then force to
-#'     select biomarker within the maximum window length we set. For the first
+#'     select biomarkers within the maximum window length we set. For the first
 #'     and last baseline time, since there is no "previous" or "next" time point
-#'     availiable, use the maximum acceptable window length instead.
+#'     available, use the maximum acceptable window length instead.
 #'
 #' @param window_overlap A logical value indicating the time window setting.
 #'     Default "False." If true, all time windows will set from 1/2 "window"
 #'     days before the baseline time to the 1/2 "window" days after baseline. In
 #'     this case, the time windows may overlap, which means some biomarkers may
 #'     be merged into multiple baseline data. If false, the windows will be
-#'     calculated from the blaseline times. The left window is set to be the
+#'     calculated from the baseline times. The left window is set to be the
 #'     midpoint between the current and the previous time point. The right
 #'     window is set to be the midpoint between the current and the next time
 #'     point. For the first and last baseline time, since there is no "previous"
@@ -317,7 +318,11 @@ NULL
 #'     dictionary for mapping column names, "ana_data": the dictionary for query, "adni": the dictionary for ADNI
 #'     data.
 #'     
-#'     
+#' @param apoecode A string indicating the APOE. The available
+#'     options are: 3.4, 4.4, 2.4
+#' 
+#' @param par_apoe A list indicating the map for apoecode. Default
+#'     value is list(levels = c(3.4, 4.4, 2.4),labels = c(1, 2, NA))).
 #'
 #'
 NULL

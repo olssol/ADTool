@@ -29,7 +29,7 @@
 #'
 adt_get_biocard <- function(path     = ".",
                             merge_by = c("diagnosis", "cognitive", "csf",
-                                         "hippocampus", "amydata",
+                                         "hippocampus", "amygdala",
                                          "entorhinal"),
                             window  = 730, window_overlap = FALSE,
                             pattern    = "*.xls",
@@ -51,7 +51,7 @@ adt_get_biocard <- function(path     = ".",
         dta %>%
             mutate(!!date_name :=
                        as.Date(!!as.name(mvar),
-                               dfmt[1, "src_date_format"])) %>%
+                               dfmt[["src_date_format"]])) %>%
             select(- all_of(mvar))
     }
 
@@ -73,7 +73,7 @@ adt_get_biocard <- function(path     = ".",
     merge_by <- match.arg(merge_by)
 
     ## switch
-    merge_by <- switch(merge_by,
+    merge_code <- switch(merge_by,
                        diagnosis   = "diag",
                        cognitive   = "cog",
                        csf         = "csf",
@@ -116,22 +116,9 @@ adt_get_biocard <- function(path     = ".",
     }
 
     if (dim(chk_all)[1] > 0) {
-
-        ## XINYU: IS THIS MESSAGE THE SAME AS a_msg("biocard_load_error")
-        err_msg <- a_msg("biocard_load_error")
+        err_msg <- a_err_msg("biocard_load_error")
         message(err_msg)
         print(chk_all)
-
-        ## message("Some variable(s) not found.
-        ##       Missing of ID and date variables may cause problem when merging data.
-        ##       Missing of other variables may cause problem when querying.
-        ##       (The analysis dateset can still be generated if no ID and date variables are missing.)
-        ##       Missing information is shown below:")
-
-        ## XINYU: I SUGGEST WE LET THE PROCESS CONTINUE
-        ## skip <- readline(prompt = "Continue to generate the analysis dataset? (Y/n)?")
-        ## if ("n" == skip) {
-        ##}
     }
 
     dat_lsta  <- a_read_file("LIST_A", file_names, dict_src_files, verbose)
@@ -204,8 +191,8 @@ adt_get_biocard <- function(path     = ".",
 
     ## ------------- prepare bases of dates -----------------------------
     a_print("Merging analysis dataset...", verbose)
-    dat_se <- a_window(dat    = get(paste("dat_", merge_by, sep = "")),
-                       v_date = paste("date_", merge_by, sep = ""),
+    dat_se <- a_window(dat    = get(paste("dat_", merge_code, sep = "")),
+                       v_date = paste("date_", merge_code, sep = ""),
                        window,
                        window_overlap)
 
@@ -228,8 +215,7 @@ adt_get_biocard <- function(path     = ".",
         left_join(dat_diag_sub, by = c("subject_id", "date_diag"))
 
     ## load ApoE-4
-    ## XINYU: I SUGGEST WE MAKE THIS A FUNCTION SINCE NACC OR ANDI MAY USE IT TOO
-    dat_se$apoe <- apt_apoe(dat_se$apoecode)
+    dat_se$apoe <- adt_apoe(dat_se$apoecode)
 
     ## drop duplicates
     dat_se <- dat_se %>%
@@ -241,11 +227,12 @@ adt_get_biocard <- function(path     = ".",
         mutate(exclude = subject_id %in% exid)
 
     a_print("Done.", verbose)
-
     ## return
-
-    ## XINYU: WHY ARE WE NOT ASSIGNING CLASS ANY MORE?
-    s <- dat_se
-    # class(s) <- "biocard"
-    return(s)
+    rtn <- list(ana_dt = dat_se, 
+                dat_ty = "biocard", 
+                merge_by = merge_by, 
+                window = window, 
+                overlap = window_overlap)
+    class(rtn) <- "adtool"
+    return(rtn)
 }
