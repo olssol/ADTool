@@ -281,15 +281,36 @@ a_err_msg <- function(msg_id) {
 #' @return A dictionary with categorical code
 #' @export
 #'
-#' @examples
 a_dict_map <- function() {
     ppl <- "x$var = recode(x$var, map)"
     dict_data <- adt_get_dict("ana_data")
     dict_cmd <- dict_data %>%
-        filter(grepl("','", range)) %>%
+        filter(grepl("','", values)) %>%
         rowwise() %>%
         mutate(cmd = gsub("var", adt_col_name, ppl)) %>%
-        mutate(cmd = gsub("map", range, cmd)) %>% 
+        mutate(cmd = gsub("map", values, cmd)) %>% 
         select(adt_col_name, description, values, cmd)
     return(dict_cmd)
+}
+
+#' Generate Information Table
+#'
+#' @inheritParams parameters
+#'
+#' @return A matrix with number of participants in different categories.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' a_gen_tbl('sex', 'age')
+#' }
+a_gen_tbl <- function(pat_sub, stack_by, distn) {
+    ppl <- 'as.data.frame(pat_sub %>% count(dist, stack))'
+    pre <- gsub('dist', distn, ppl)
+    cmd <- gsub('stack', stack_by, pre)
+    info <- eval(parse(text = cmd)) %>% na.omit()
+    tbl <- reshape(info, idvar = distn, timevar = stack_by, direction = 'wide', sep = '_') %>% 
+        replace(., is.na(.), 0) %>% 
+        mutate(All = rowSums(across(where(is.numeric))))
+    return(tbl)
 }

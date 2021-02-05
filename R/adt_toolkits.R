@@ -105,6 +105,17 @@ adt_apoe <- function(apoecode,
            labels = par_apoe$labels)
 }
 
+#' Query for categorical variables
+#'
+#' @inheritParams parameters
+#'
+#' @return A list with descriptive information and counts for each category.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' adt_query_cate(x, ""sex)
+#' }
 adt_query_cate <- function(x, var) {
     dict_cmd <- a_dict_map()
     if(!var %in% dict_cmd$adt_col_name){
@@ -112,7 +123,6 @@ adt_query_cate <- function(x, var) {
     }
     info <- dict_cmd %>%
         filter(adt_col_name == var) 
-    cat(info$adt_col_name, ':', info$description, 
-        '\npossible values:', info$values, '\nbasic info:\n')
-    print(data.frame(table(eval(parse(text = info$cmd)))))
+    res <- list(info[, -4], data.frame(table(eval(parse(text = info$cmd)))))
+    return(res)
 }

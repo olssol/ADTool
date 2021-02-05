@@ -10,9 +10,12 @@
 #' @importFrom readxl read_xlsx
 #' @importFrom gdata read.xls
 #' @importFrom plyr revalue
+#' @importFrom gridExtra tableGrob grid.arrange
 #' @import dplyr
 #' @import tidyr
 #' @import xlsx
+#' @import ggplot
+#' @import reshape
 #'
 #' @importFrom stats approxfun as.formula binomial cov density ecdf glm
 #'     integrate optim predict quantile sd var
@@ -104,8 +107,7 @@ NULL
 #'
 #' @usage data(dict_src_tables)
 #'
-#' @format A dataframe with the following variables (all variables are in string
-#'     type):
+#' @format A dataframe with the following variables (all variables are in string type)
 #'
 #' \itemize{
 #' 
@@ -138,7 +140,7 @@ NULL
 #'
 #' @name dict_src_files
 #'
-#' @format A dataframe with the following variables:
+#' @format A dataframe with the following variables
 #'
 #' \itemize{
 #'
@@ -324,5 +326,20 @@ NULL
 #' @param par_apoe A list indicating the map for apoecode. Default
 #'     value is list(levels = c(3.4, 4.4, 2.4),labels = c(1, 2, NA))).
 #'
-#'
+#' @param ad_ana_data The analysis data get from adt_biocard() function.
+#' 
+#' @param ...
+#' 
+#' @param vars A list of strings indicating categorical variables name.
+#' 
+#' @param x The analysis data set
+#' 
+#' @param var A string indicating the queried variable 
+#' 
+#' @param stack_by A string indicating the way to group data. Options are "sex" and "diagnosis".
+#' 
+#' @param distn    A string indicating the interested distribution. Options are "age", "visit", and "yar"
+#' 
+#' @param pat_sub A data set contains needed information for ploting
+#' 
 NULL

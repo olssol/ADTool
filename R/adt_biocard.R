@@ -28,7 +28,7 @@
 #'
 #'
 adt_get_biocard <- function(path     = ".",
-                            merge_by = c("diagnosis", "cognitive", "csf",
+                            merge_by = c("cognitive", "diagnosis", "csf",
                                          "hippocampus", "amygdala",
                                          "entorhinal"),
                             window  = 730, window_overlap = FALSE,
@@ -233,6 +233,6 @@ adt_get_biocard <- function(path     = ".",
                 merge_by = merge_by, 
                 window = window, 
                 overlap = window_overlap)
-    class(rtn) <- "adtool"
+    class(rtn) <- "ad_ana_data"
     return(rtn)
 }
