@@ -91,8 +91,9 @@ adt_get_dict <- function(dict = c("src_files",
 
 #' Convert APOE Values
 #'
-#'
-#'
+#' Convert APOE values from (3.4, 4.4, 2.4) to (1, 2, NA).
+#' 
+#' @inheritParams parameters
 #'
 #' @export
 #'
@@ -102,4 +103,26 @@ adt_apoe <- function(apoecode,
     factor(apoecode,
            levels = par_apoe$levels,
            labels = par_apoe$labels)
+}
+
+#' Query for categorical variables
+#'
+#' @inheritParams parameters
+#'
+#' @return A list with descriptive information and counts for each category.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' adt_query_cate(x, ""sex)
+#' }
+adt_query_cate <- function(x, var) {
+    dict_cmd <- a_dict_map()
+    if(!var %in% dict_cmd$adt_col_name){
+        stop("No mapping for this variable")
+    }
+    info <- dict_cmd %>%
+        filter(adt_col_name == var) 
+    res <- list(info[, -4], data.frame(table(eval(parse(text = info$cmd)))))
+    return(res)
 }

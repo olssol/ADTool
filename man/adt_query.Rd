@@ -23,4 +23,5 @@ Search description from dictionary
 \dontrun{
 adt_query(biovard, "EDUC", "general")
 }
+
 }

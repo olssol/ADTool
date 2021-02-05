@@ -4,7 +4,7 @@
 \alias{a_read_file}
 \title{Read data}
 \usage{
-a_read_file(table_code, file_names, dict_src_files)
+a_read_file(table_code, file_names, dict_src_files, verbose = TRUE)
 }
 \arguments{
 \item{table_code}{Code of subtables ("Cognitive" as "COG"), which can be mapped

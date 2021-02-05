@@ -6,12 +6,15 @@
 \usage{
 adt_get_biocard(
   path = ".",
-  merge_by = c("diagnosis", "cognitive", "csf", "hippocampus", "amydata", "entorhinal"),
+  merge_by = c("cognitive", "diagnosis", "csf", "hippocampus", "amygdala",
+    "entorhinal"),
   window = 730,
   window_overlap = FALSE,
   pattern = "*.xls",
   src_files = NULL,
-  src_tables = NULL
+  src_tables = NULL,
+  par_apoe = list(levels = c(3.4, 4.4, 2.4), labels = c(1, 2, NA)),
+  verbose = TRUE
 )
 }
 \arguments{
@@ -29,16 +32,16 @@ most data, the time windows are calculated from the baseline time (left
 window = the midpoint between current and the previous time point; right
 window = the midpoint between current and the next time point). If the
 time windows are longer than the maximum acceptable length, then force to
-select biomarker within the maximum window length we set. For the first
+select biomarkers within the maximum window length we set. For the first
 and last baseline time, since there is no "previous" or "next" time point
-availiable, use the maximum acceptable window length instead.}
+available, use the maximum acceptable window length instead.}
 
 \item{window_overlap}{A logical value indicating the time window setting.
 Default "False." If true, all time windows will set from 1/2 "window"
 days before the baseline time to the 1/2 "window" days after baseline. In
 this case, the time windows may overlap, which means some biomarkers may
 be merged into multiple baseline data. If false, the windows will be
-calculated from the blaseline times. The left window is set to be the
+calculated from the baseline times. The left window is set to be the
 midpoint between the current and the previous time point. The right
 window is set to be the midpoint between the current and the next time
 point. For the first and last baseline time, since there is no "previous"
@@ -54,22 +57,28 @@ read all table names from the path.}
 
 \item{src_tables}{Updated dictionary file for source table features. See
 \code{\link{dict_src_tables}} for more details.}
+
+\item{par_apoe}{A list indicating the map for apoecode. Default
+value is list(levels = c(3.4, 4.4, 2.4),labels = c(1, 2, NA))).}
 }
 \value{
-Returned the analysis dataset with:
-patients' ids, baseline times, corresponding biomarkers, biomarker test times, etc.
+Returned the analysis dataset with: patients' ids, baseline times,
+corresponding biomarkers, biomarker test times, etc.
 }
 \description{
 Import BIOCARD data from source files and generate the analysis dataset.
 }
 \examples{
 \dontrun{
-# with default unoverlaped window
+## with default unoverlaped window
 dt_biocard <- get_biocard(path, merge_by = "diagnosis")
-# with costomized window
-dt_biocard <- get_biocard(path, merge_by = "diagnosis", window = 365,
+
+## with costomized window
+dt_biocard <- get_biocard(path, merge_by = "diagnosis",
+                          window = 365,
                           window_overlap = TRUE)
-# with updated dictionary
+
+## with dictionary provided by user
 dt_biocard <- get_biocard(path, merge_by = "dx",
                           src_tables = "dict_src_tables.xlsx")
 }
