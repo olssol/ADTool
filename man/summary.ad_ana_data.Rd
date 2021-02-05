@@ -4,10 +4,10 @@
 \alias{summary.ad_ana_data}
 \title{Summary for class ad_ana_data}
 \usage{
-\method{summary}{ad_ana_data}(ad_ana_data, vars = NULL, ...)
+\method{summary}{ad_ana_data}(dat, vars = NULL, ...)
 }
 \arguments{
-\item{ad_ana_data}{The analysis data get from adt_biocard() function.}
+\item{dat}{The baseline time dataset.}
 
 \item{vars}{A list of strings indicating categorical variables name.}
 

@@ -125,6 +125,22 @@ options are: 3.4, 4.4, 2.4}
 
 \item{par_apoe}{A list indicating the map for apoecode. Default
 value is list(levels = c(3.4, 4.4, 2.4),labels = c(1, 2, NA))).}
+
+\item{ad_ana_data}{The analysis data get from adt_biocard() function.}
+
+\item{...}{}
+
+\item{vars}{A list of strings indicating categorical variables name.}
+
+\item{x}{The analysis data set}
+
+\item{var}{A string indicating the queried variable}
+
+\item{stack_by}{A string indicating the way to group data. Options are "sex" and "diagnosis".}
+
+\item{distn}{A string indicating the interested distribution. Options are "age", "visit", and "yar"}
+
+\item{pat_sub}{A data set contains needed information for ploting}
 }
 \description{
 List of function parameters in the \code{ADTool} package

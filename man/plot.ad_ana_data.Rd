@@ -4,10 +4,15 @@
 \alias{plot.ad_ana_data}
 \title{Plot for class ad_ana_data}
 \usage{
-\method{plot}{ad_ana_data}(ad_ana_data, ...)
+\method{plot}{ad_ana_data}(
+  dat,
+  distn = c("age", "visit", "year"),
+  stack_by = c("diagnosis", "sex"),
+  ...
+)
 }
 \arguments{
-\item{ad_ana_data}{}
+\item{dat}{}
 
 \item{...}{}
 }

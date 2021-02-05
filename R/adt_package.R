@@ -9,13 +9,11 @@
 #' @importFrom parallel detectCores
 #' @importFrom readxl read_xlsx
 #' @importFrom gdata read.xls
-#' @importFrom plyr revalue
 #' @importFrom gridExtra tableGrob grid.arrange
+#' @import ggplot2
 #' @import dplyr
 #' @import tidyr
 #' @import xlsx
-#' @import ggplot
-#' @import reshape
 #'
 #' @importFrom stats approxfun as.formula binomial cov density ecdf glm
 #'     integrate optim predict quantile sd var

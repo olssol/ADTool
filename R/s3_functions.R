@@ -99,6 +99,6 @@ plot.ad_ana_data <- function(dat,
     labs(x = distn, y = 'Number of Subjects', title = 'Participant Distribution') + 
     theme(plot.title = element_text(size = 12, face = 'bold', hjust = 0.5))
   
-  grid.arrange(p, tableGrob(tbl), 
-               ncol = 2, as.table = TRUE, widths = c(1.2, 1))
+  grid.arrange(tableGrob(tbl), p, 
+               ncol = 2, as.table = TRUE, widths = c(1, 1.2))
 }
