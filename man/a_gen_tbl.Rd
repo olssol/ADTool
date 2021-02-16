@@ -4,13 +4,9 @@
 \alias{a_gen_tbl}
 \title{Generate Information Table}
 \usage{
-a_gen_tbl(pat_sub, stack_by, distn)
+a_gen_tbl(pat, group, distn)
 }
 \arguments{
-\item{pat_sub}{A data set contains needed information for ploting}
-
-\item{stack_by}{A string indicating the way to group data. Options are "sex" and "diagnosis".}
-
 \item{distn}{A string indicating the interested distribution. Options are "age", "visit", and "yar"}
 }
 \value{

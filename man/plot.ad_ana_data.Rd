@@ -7,12 +7,15 @@
 \method{plot}{ad_ana_data}(
   dat,
   distn = c("age", "visit", "year"),
-  stack_by = c("diagnosis", "sex"),
+  group = c("diagnosis", "sex"),
+  baseline = TRUE,
   ...
 )
 }
 \arguments{
-\item{dat}{}
+\item{dat}{The baseline time dataset.}
+
+\item{distn}{A string indicating the interested distribution. Options are "age", "visit", and "yar"}
 
 \item{...}{}
 }

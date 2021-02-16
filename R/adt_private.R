@@ -169,11 +169,10 @@ a_window <- function(dat, v_date, window, window_overlap, v_id = "subject_id") {
 #'
 #' @examples
 #' \dontrun{
-#' dat_se <- a_match(dat_se, dat_dx, "date_dx", duplist)
+#' dat_se <- a_match(dat_se, dat_dx, "date_dx")
 #' }
 #'
-a_match <- function(dat_se, dat_marker, m_date, duplist) {
-    exc_cols  <- names(dat_marker)[which(names(dat_marker) %in% duplist)]
+a_match <- function(dat_se, dat_marker, m_date) {
     dat_match <- dat_se %>%
         select(subject_id, date, date_left, date_right) %>%
         left_join(dat_marker %>%
@@ -189,8 +188,7 @@ a_match <- function(dat_se, dat_marker, m_date, duplist) {
 
     dat_se %>%
         left_join(dat_match,  by = c("subject_id", "date")) %>%
-        left_join(dat_marker, by = c("subject_id", m_date)) %>%
-        select(-exc_cols)
+        left_join(dat_marker, by = c("subject_id", m_date)) 
 }
 
 #' Update Dictionary
@@ -304,12 +302,11 @@ a_dict_map <- function() {
 #' \dontrun{
 #' a_gen_tbl('sex', 'age')
 #' }
-a_gen_tbl <- function(pat_sub, stack_by, distn) {
-    ppl <- 'as.data.frame(pat_sub %>% count(dist, stack))'
-    pre <- gsub('dist', distn, ppl)
-    cmd <- gsub('stack', stack_by, pre)
-    info <- eval(parse(text = cmd)) %>% na.omit()
-    tbl <- reshape(info, idvar = distn, timevar = stack_by, direction = 'wide', sep = '_') %>% 
+a_gen_tbl <- function(pat, group, distn) {
+    info <- as.data.frame(pat %>% 
+                              count(!!as.name(distn), !!as.name(group))) %>% 
+        na.omit()
+    tbl <- reshape(info, idvar = distn, timevar = group, direction = 'wide', sep = '_') %>% 
         replace(., is.na(.), 0) %>% 
         mutate(All = rowSums(across(where(is.numeric))))
     return(tbl)

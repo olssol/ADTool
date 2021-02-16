@@ -4,7 +4,7 @@
 \alias{a_match}
 \title{Map Biomarkers Data to The Baseline Visits}
 \usage{
-a_match(dat_se, dat_marker, m_date, duplist)
+a_match(dat_se, dat_marker, m_date)
 }
 \arguments{
 \item{dat_se}{A dataset that will be merged.}
@@ -12,8 +12,6 @@ a_match(dat_se, dat_marker, m_date, duplist)
 \item{dat_marker}{A data set including new biomarker that will be merged.}
 
 \item{m_date}{A string indicating the name of measure date in dat_marker.}
-
-\item{duplist}{A list of duplicated columns names.}
 }
 \value{
 The matched (larger) dataset including newly added biomarker data.
@@ -26,7 +24,7 @@ assignment criteria, take first one.
 }
 \examples{
 \dontrun{
-dat_se <- a_match(dat_se, dat_dx, "date_dx", duplist)
+dat_se <- a_match(dat_se, dat_dx, "date_dx")
 }
 
 }
