@@ -287,8 +287,6 @@ NULL
 #' 
 #' @param m_date     A string indicating the name of measure date in dat_marker.
 #' 
-#' @param duplist    A list of duplicated columns names.
-#' 
 #' @param rst_dict A dataset that waiting to be updated.
 #' 
 #' @param csv_dict A dataset with updated information.

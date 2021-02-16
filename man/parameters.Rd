@@ -89,8 +89,6 @@ See \code{\link{dict_src_files}} for more details.}
 
 \item{m_date}{A string indicating the name of measure date in dat_marker.}
 
-\item{duplist}{A list of duplicated columns names.}
-
 \item{rst_dict}{A dataset that waiting to be updated.}
 
 \item{csv_dict}{A dataset with updated information.}

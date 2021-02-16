@@ -81,13 +81,6 @@ adt_get_biocard <- function(path     = ".",
                        amydata     = "amy",
                        entorhinal   = "ec")
 
-    dup_list <- c("jhuanonid", "lettercode",
-                  "nihid", "visitno", "diagnosis.at.last.scan",
-                  "scan", "de.identified.subject.id",
-                  "subject.nihid", "age.at.scan",
-                  "diagnosis..at.last.scan", "consensus.diagnosis",
-                  "intracranial_vol", "x")
-
     ## --------- prepare files  -------------------------------------
 
     ## list all file names matching the pattern
@@ -189,6 +182,22 @@ adt_get_biocard <- function(path     = ".",
     exid <- c(dat_lsta[[id_name]],
               dat_lstb[[id_name]])
 
+    ## ------------- merge all data -------------------------------------
+    #dat_all <- dat_cog %>%
+    #    left_join(dat_diag,  by = c("subject_id")) %>%
+    #    left_join(dat_amy,   by = c("subject_id")) %>%
+    #    left_join(dat_csf,   by = c("subject_id")) %>%
+    #    left_join(dat_demo,  by = c("subject_id")) %>%
+    #    left_join(dat_ec,    by = c("subject_id")) %>%
+    #    left_join(dat_ge,    by = c("subject_id")) %>%
+    #    left_join(dat_hippo, by = c("subject_id")) 
+    
+    ## drop duplicat columns
+    #dat_all <- dat_all %>%
+        select(!(ends_with(".x") | ends_with(".y")))
+    
+    #aa <- melt(dat_all, id.vars = "subject_id")
+    
     ## ------------- prepare bases of dates -----------------------------
     a_print("Merging analysis dataset...", verbose)
     dat_se <- a_window(dat    = get(paste("dat_", merge_code, sep = "")),
@@ -197,12 +206,12 @@ adt_get_biocard <- function(path     = ".",
                        window_overlap)
 
     ## ------------- combine data --------------------------------------
-    dat_se <- a_match(dat_se, dat_diag,  "date_diag",  dup_list)
-    dat_se <- a_match(dat_se, dat_cog,   "date_cog",   dup_list)
-    dat_se <- a_match(dat_se, dat_csf,   "date_csf",   dup_list)
-    dat_se <- a_match(dat_se, dat_hippo, "date_hippo", dup_list)
-    dat_se <- a_match(dat_se, dat_amy,   "date_amy",   dup_list)
-    dat_se <- a_match(dat_se, dat_ec,    "date_ec",    dup_list)
+    dat_se <- a_match(dat_se, dat_diag,  "date_diag")
+    dat_se <- a_match(dat_se, dat_cog,   "date_cog")
+    dat_se <- a_match(dat_se, dat_csf,   "date_csf")
+    dat_se <- a_match(dat_se, dat_hippo, "date_hippo")
+    dat_se <- a_match(dat_se, dat_amy,   "date_amy")
+    dat_se <- a_match(dat_se, dat_ec,    "date_ec")
 
     dat_diag_sub <- dat_diag %>%
         select(c("subject_id", "jhuanonid", "lettercode", "nihid",
@@ -225,6 +234,25 @@ adt_get_biocard <- function(path     = ".",
     dat_se <- dat_se %>%
         rowwise() %>%
         mutate(exclude = subject_id %in% exid)
+    
+    dat_se <- dat_se %>% 
+        mutate(sex_group = recode(sex, '1'='Male','2'='Female')) %>% 
+        mutate(age =  startyear - birthyear) %>% 
+        mutate(age_group = case_when(age <  10            ~ 'under 10', 
+                                     age >= 10 & age < 20 ~ '10-19', 
+                                     age >= 20 & age < 30 ~ '20-29', 
+                                     age >= 30 & age < 40 ~ '30-39', 
+                                     age >= 40 & age < 50 ~ '40-49', 
+                                     age >= 50 & age < 60 ~ '50-59', 
+                                     age >= 60 & age < 70 ~ '60-69', 
+                                     age >= 70 & age < 80 ~ '70-79', 
+                                     age >= 80 & age < 90 ~ '80-89', 
+                                     age >= 90            ~ 'above 89')) %>% 
+        group_by(subject_id) %>% 
+        mutate(visit = row_number()) %>% 
+        mutate(year = if_else(as.numeric(format(date_cog, '%Y')) - startyear < 0, 
+                                       0, as.numeric(format(date_cog, '%Y')) - startyear)) %>% 
+        ungroup()
 
     a_print("Done.", verbose)
     ## return
